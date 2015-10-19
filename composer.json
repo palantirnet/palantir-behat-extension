@@ -2,6 +2,12 @@
     "name": "palantirnet/palantir-extension",
     "description": "Additional step definitions for testing Drupal sites using Behat.",
     "type": "behat-extension",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://packagist.drupal-composer.org/"
+        }
+    ],
     "require": {
         "drupal/drupal-extension": "^3.1"
     },
