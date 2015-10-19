@@ -18,12 +18,12 @@
         {
             "name": "Bec White",
             "email": "white@palantir.net",
-            "role": "Developer",
+            "role": "Developer"
         },
         {
             "name": "Kelsey Bentham",
             "email": "bentham@palantir.net",
-            "role": "Developer",
+            "role": "Developer"
         }
     ],
     "require": {
