@@ -1,0 +1,14 @@
+{
+    "name": "palantir/palantir-extension",
+    "description": "Additional step definitions for testing Drupal sites using Behat.",
+    "type": "behat-extension",
+    "require": {
+        "drupal/drupal-extension": "^3.1"
+    },
+    "authors": [
+        {
+            "name": "palantir-team",
+            "email": "white@palantir.net"
+        }
+    ]
+}
