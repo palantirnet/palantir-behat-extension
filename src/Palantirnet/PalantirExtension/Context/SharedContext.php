@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Behat context class with functionality that is shared across custom contexts.
+ *
+ * @copyright (c) Copyright 2015 Palantir.net, Inc.
+ */
 
 namespace Palantirnet\PalantirExtension\Context;
 
@@ -33,7 +39,7 @@ class SharedContext extends RawDrupalContext
     }
 
     /**
-     * Returns an existing node object, or creates one if it doesn't exist yet.
+     * Get node object by its title, creating the node if it does not yet exist.
      *
      * @return stdclass
      *   A Drupal node object.

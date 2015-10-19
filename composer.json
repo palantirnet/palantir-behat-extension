@@ -2,19 +2,37 @@
     "name": "palantirnet/palantir-extension",
     "description": "Additional step definitions for testing Drupal sites using Behat.",
     "type": "behat-extension",
-    "repositories": [
+    "keywords": [
+        "behat",
+        "drupal"
+    ],
+    "homepage": "https://github.com/palantirnet/palantir-extension",
+    "license": "proprietary",
+    "authors": [
         {
-            "type": "composer",
-            "url": "http://packagist.drupal-composer.org/"
+            "name": "Palantir.net",
+            "email": "white@palantir.net",
+            "homepage": "https://palantir.net",
+            "role": "Company"
+        },
+        {
+            "name": "Bec White",
+            "email": "white@palantir.net",
+            "role": "Developer",
+        },
+        {
+            "name": "Kelsey Bentham",
+            "email": "bentham@palantir.net",
+            "role": "Developer",
         }
     ],
     "require": {
         "drupal/drupal-extension": "3.*"
     },
-    "authors": [
+    "repositories": [
         {
-            "name": "palantir-team",
-            "email": "white@palantir.net"
+            "type": "composer",
+            "url": "http://packagist.drupal-composer.org/"
         }
     ]
 }

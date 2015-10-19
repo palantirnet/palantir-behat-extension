@@ -1,4 +1,10 @@
 <?php
+/**
+ * @file
+ * Behat context class with additional node-related steps.
+ *
+ * @copyright (c) Copyright 2015 Palantir.net, Inc.
+ */
 
 namespace Palantirnet\PalantirExtension\Context;
 
