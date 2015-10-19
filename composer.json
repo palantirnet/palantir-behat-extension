@@ -1,5 +1,5 @@
 {
-    "name": "palantir/palantir-extension",
+    "name": "palantirnet/palantir-extension",
     "description": "Additional step definitions for testing Drupal sites using Behat.",
     "type": "behat-extension",
     "require": {
