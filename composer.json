@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "drupal/drupal-extension": "^3.1"
+        "drupal/drupal-extension": "3.*"
     },
     "authors": [
         {
