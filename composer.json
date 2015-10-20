@@ -26,6 +26,11 @@
             "role": "Developer"
         }
     ],
+    "autoload": {
+        "psr-0": {
+            "Palantirnet\\PalantirExtension\\": "src/"
+        }
+    },
     "require": {
         "drupal/drupal-extension": "3.*"
     },
