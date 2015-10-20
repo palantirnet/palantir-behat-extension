@@ -64,4 +64,57 @@ class SharedContext extends RawDrupalContext
         return $node;
     }
 
+    /**
+     * Get a term object by name and vocabulary.
+     *
+     * @return stdclass
+     *   The Drupal term object, if it exists.
+     */
+    public function findTermByName($termName, $vocabulary)
+    {
+        $query = new \EntityFieldQuery();
+
+        $entities = $query->entityCondition('entity_type', 'taxonomy_term')
+            ->entityCondition('bundle', $vocabulary)
+            ->propertyCondition('name', $termName)
+            ->execute();
+
+        if (!empty($entities['taxonomy_term']) && count($entities['taxonomy_term']) == 1) {
+            $id = key($entities['taxonomy_term']);
+            return taxonomy_term_load($id);
+        }
+        elseif (!empty($entities['taxonomy_term']) && count($entities['taxonomy_term']) > 1) {
+            throw new \Exception(sprintf('Found more than one "%s" term entitled "%s"', $vocabulary, $termName));
+        }
+        else {
+            throw new \Exception(sprintf('No "%s" term entitled "%s" exists', $vocabulary, $termName));
+        }
+    }
+
+    /**
+     * Get a user object by name.
+     *
+     * @return stdclass
+     *   The Drupal user object, if it exists.
+     */
+    public function findUserByName($userName)
+    {
+        $query = new \EntityFieldQuery();
+
+        $entities = $query->entityCondition('entity_type', 'user')
+            ->propertyCondition('name', $userName)
+            ->execute();
+
+        if (!empty($entities['user']) && count($entities['user']) == 1) {
+            $id = key($entities['user']);
+            return user_load($id);
+        }
+        elseif (!empty($entities['user']) && count($entities['user']) > 1) {
+            throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
+        }
+        else {
+            throw new \Exception(sprintf('No user named "%s" exists', $userName));
+        }
+    }
+
 }
