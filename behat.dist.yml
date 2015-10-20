@@ -2,7 +2,7 @@ default:
   suites:
     default:
       contexts:
-        - Palantirnet\PalantirExtension\Context\NodeContext
+        - Palantirnet\PalantirBehatExtension\Context\NodeContext
   extensions:
     Drupal\DrupalExtension:
       blackbox: ~

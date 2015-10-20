@@ -1,12 +1,12 @@
 {
-    "name": "palantirnet/palantir-extension",
+    "name": "palantirnet/palantir-behat-extension",
     "description": "Additional step definitions for testing Drupal sites using Behat.",
     "type": "behat-extension",
     "keywords": [
         "behat",
         "drupal"
     ],
-    "homepage": "https://github.com/palantirnet/palantir-extension",
+    "homepage": "https://github.com/palantirnet/palantir-behat-extension",
     "license": "proprietary",
     "authors": [
         {
@@ -28,7 +28,7 @@
     ],
     "autoload": {
         "psr-0": {
-            "Palantirnet\\PalantirExtension\\": "src/"
+            "Palantirnet\\PalantirBehatExtension\\": "src/"
         }
     },
     "require": {

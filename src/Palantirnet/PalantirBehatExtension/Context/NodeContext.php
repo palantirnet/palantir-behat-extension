@@ -6,7 +6,7 @@
  * @copyright (c) Copyright 2015 Palantir.net, Inc.
  */
 
-namespace Palantirnet\PalantirExtension\Context;
+namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 
