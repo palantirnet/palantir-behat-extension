@@ -26,15 +26,17 @@ class SharedContext extends RawDrupalContext
         $entities = $query->entityCondition('entity_type', 'node')
             ->entityCondition('bundle', $contentType)
             ->propertyCondition('title', $title)
-            ->range(0, 1)
             ->execute();
 
-        if (!empty($entities['node'])) {
+        if (!empty($entities['node']) && count($entities['node']) == 1) {
             $nid = key($entities['node']);
             return node_load($nid);
         }
+        elseif (!empty($entities['node']) && count($entities['node']) > 1) {
+            throw new \Exception(sprintf('Found more than one "%s" node entitled "%s"', $contentType, $title));
+        }
         else {
-            throw new \Exception(sprintf('No published "%s" node entitled "%s" exists', $contentType, $title));
+            throw new \Exception(sprintf('No "%s" node entitled "%s" exists', $contentType, $title));
         }
     }
 
