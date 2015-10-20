@@ -21,7 +21,7 @@ class SharedContext extends RawDrupalContext
      */
     public function findNodeByTitle($contentType, $title)
     {
-        $query = new EntityFieldQuery();
+        $query = new \EntityFieldQuery();
 
         $entities = $query->entityCondition('entity_type', 'node')
             ->entityCondition('bundle', $contentType)
