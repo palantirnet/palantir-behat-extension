@@ -1,0 +1,11 @@
+default:
+  suites:
+    default:
+      contexts:
+        - Palantirnet\PalantirExtension\Context\NodeContext
+  extensions:
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: 'drupal'
+      drupal:
+        drupal_root: 'www'
