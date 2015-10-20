@@ -6,13 +6,21 @@ The Palantir Behat Drupal Extension provides additional step definitions for tes
 
 ## What can I do with this?
 
-* Add `Palantirnet\PalantirBehatExtension\Context\NodeContext` to your `behat.yml` for extra steps for general Drupal tasks like viewing and editing nodes by title
-* Extend `Palantirnet\PalantirBehatExtension\Context\MarkupContext` in your project and use the `assertRegionElementText` method to encapsulate complex markup in a custom context rather than in the Gherkin acceptance criteria
-* Add `Palantirnet\PalantirBehatExtension\Context\DrupalCommentContext` to your `behat.yml` for extra steps to test commenting
-* Add `Palantirnet\PalantirBehatExtension\Context\DrupalOrganicGroupsContext` to your `behat.yml` for extra steps to test access to Organic Groups
-* Add `Palantirnet\PalantirBehatExtension\Context\EntityDataContext` to your `behat.yml` for extra steps to test field data and properties on nodes, terms, and users directly, without relying on output (... or write a simpletest...)
-* Add `Palantirnet\PalantirBehatExtension\Context\DrupalAutoNodetitleContext` to your `behat.yml` and tag scenarios with `@disableAutoNodetitle` to bypass automatic title generation; sometimes this is required in order to have predictable test content
-* Add `Palantirnet\PalantirBehatExtension\Context\DrupalWorkbenchModerationContext` to your `behat.yml` and tag scenarios with `@disableWorkbenchModeration` to bypass moderation
+### Extra step syntax
+
+* `NodeContext`: test viewing and editing nodes by title
+* `DrupalCommentContext`: test commenting functionality
+* `DrupalOrganicGroupsContext`: test access to Organic Groups
+* `EntityDataContext`: test field data and properties on nodes, terms, and users directly, without relying on output (or write a simpletest...)
+
+### Disable module functionality during tests
+
+* `DrupalAutoNodetitleContext`: tag scenarios with `@disableAutoNodetitle` to bypass automatic title generation; sometimes this is required in order to have predictable test content
+* `DrupalWorkbenchModerationContext`: tag scenarios with `@disableWorkbenchModeration` to bypass moderation
+
+### Extend for your project's needs
+
+* `MarkupContext`: extend this class to use the `assertRegionElementText` method, and encapsulate complex markup in a custom context rather than in the Gherkin acceptance criteria
 
 ## How do I add this to my project?
 
