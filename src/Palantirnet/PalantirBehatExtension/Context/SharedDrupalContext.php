@@ -10,7 +10,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 
-class SharedContext extends RawDrupalContext
+class SharedDrupalContext extends RawDrupalContext
 {
 
     /**

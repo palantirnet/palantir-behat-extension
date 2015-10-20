@@ -23,7 +23,7 @@ use Drupal\DrupalDriverManager;
  *   Given I have the "member" role on the "project" group "My Test Group"
  *   Then I can create "post" content in the "project" group "My Test Group"
  */
-class DrupalOrganicGroupsContext extends SharedContext
+class DrupalOrganicGroupsContext extends SharedDrupalContext
 {
 
     /**

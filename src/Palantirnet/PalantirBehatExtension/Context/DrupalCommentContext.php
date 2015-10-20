@@ -33,7 +33,7 @@ use Drupal\DrupalDriverManager;
  *   Then I see the heading "This comment is about kitties"
  *   And I see the text "Kitties are the bestest."
  */
-class DrupalCommentContext extends SharedContext
+class DrupalCommentContext extends SharedDrupalContext
 {
 
     /**

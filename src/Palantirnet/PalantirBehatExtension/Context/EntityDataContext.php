@@ -25,7 +25,7 @@ use Drupal\DrupalDriverManager;
  *   And entity link field "field_example_link" url should contain "http://example.com"
  *   And I dump the contents of "field_example_link"
  */
-class EntityDataContext extends SharedContext
+class EntityDataContext extends SharedDrupalContext
 {
 
     protected $currentEntity = NULL;
