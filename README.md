@@ -35,7 +35,7 @@ First, add this package to your `composer.json` file:
             "url": "git@github.com:palantirnet/palantir-behat-extension.git"
         }
     ],
-    "require": {
+    "require-dev": {
         "palantirnet/palantir-behat-extension": "dev-master"
     },
 ```
