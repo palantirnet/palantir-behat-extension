@@ -3,6 +3,12 @@
  * @file
  * Behat context class with functionality that is shared across custom contexts.
  *
+ * @todo this work is currently tied to Drupal 7, because it runs some Drupal
+ *       code, rather than using the DrupalDriver cores. This needs to be fixed,
+ *       but lots of the functionality we want is not available in the core
+ *       classes. At the very least, we should be able to get the Drupal version
+ *       with $this->getDriver()->getDrupalVersion().
+ *
  * @copyright (c) Copyright 2015 Palantir.net, Inc.
  */
 
@@ -115,6 +121,97 @@ class SharedDrupalContext extends RawDrupalContext
         else {
             throw new \Exception(sprintf('No user named "%s" exists', $userName));
         }
+    }
+
+
+    /**
+     * Save a file.
+     *
+     * @param stdclass $file
+     *   A simple object representing file data. Properties should be a simple
+     *   scalar values. Files may use either the 'uid' or 'author' fields to
+     *   attribute the file to a particular Drupal user.
+     *
+     * @return stdclass
+     *   A Drupal file object.
+     */
+    public function fileCreate($file)
+    {
+        // Save the file.
+        $dest = file_build_uri(drupal_basename($file->uri));
+        $result = file_copy($file, $dest);
+
+        // Stash the file object for later cleanup.
+        if (!empty($result->fid)) {
+            $this->files[] = $result;
+        }
+        else {
+            throw new \Exception(sprintf('File "%s" could not be copied from "%s" to "%s".', $file->filename, $file->uri, $result->uri));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Add required file properties.
+     *
+     * @param stdclass $file
+     *   A simple object representing file data. The 'filename' property is
+     *   required.
+     *
+     * @return stdclass
+     *   A file object with at least the filename, uri, uid, and status
+     *   properties.
+     */
+    public function expandFile($file)
+    {
+        if (empty($file->filename)) {
+            throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
+        }
+
+        // Set the URI to the path to the file within the MinkExtension's
+        // files_path parameter.
+        $file->uri = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file->filename;
+
+        // Assign authorship if none exists and `author` is passed.
+        if (!isset($file->uid) && !empty($file->author) && ($account = user_load_by_name($file->author))) {
+            $file->uid = $account->uid;
+        }
+
+        // Add default values.
+        $defaults = array(
+            'uid' => 0,
+            'status' => 1,
+        );
+
+        foreach ($defaults as $key => $default) {
+            if (!isset($file->$key)) {
+                $file->$key = $default;
+            }
+        }
+
+        return $file;
+    }
+
+    /**
+     * Keep track of files so they can be cleaned up.
+     *
+     * @var array
+     */
+    protected $files = array();
+
+    /**
+     * Remove any created files.
+     *
+     * @AfterScenario
+     */
+    public function cleanFiles()
+    {
+        foreach ($this->files as $file) {
+            file_delete($file, TRUE);
+        }
+
+        $this->files = array();
     }
 
 }
