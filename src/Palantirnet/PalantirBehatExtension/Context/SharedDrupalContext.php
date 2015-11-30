@@ -137,20 +137,19 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function fileCreate($file)
     {
-        $original = clone $file;
-
         // Save the file.
-        file_copy($file);
+        $dest = file_build_uri(drupal_basename($file->uri));
+        $result = file_copy($file, $dest);
 
         // Stash the file object for later cleanup.
-        if (!empty($file->fid)) {
-            $this->files[] = $file;
+        if (!empty($result->fid)) {
+            $this->files[] = $result;
         }
         else {
-            throw new \Exception(sprintf('File "%s" could not be copied from "%s" to "%s".', $original->filename, $original->uri, $file->uri));
+            throw new \Exception(sprintf('File "%s" could not be copied from "%s" to "%s".', $file->filename, $file->uri, $result->uri));
         }
 
-        return $file;
+        return $result;
     }
 
     /**
