@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Standard">
+  <description>The coding standard for the Palantir Behat Extension project.</description>
+
+  <file>src</file>
+
+  <arg name="standard" value="vendor/leaphub/phpcs-symfony2-standard/leaphub/phpcs/Symfony2"/>
+  <arg name="extensions" value="php"/>
+  <arg name="warning-severity" value="0"/>
+
+  <rule ref="PHPCS"/>
+</ruleset>

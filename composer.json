@@ -39,5 +39,9 @@
             "type": "composer",
             "url": "http://packagist.drupal-composer.org/"
         }
-    ]
+    ],
+    "require-dev": {
+        "leaphub/phpcs-symfony2-standard": "^2.0",
+        "squizlabs/php_codesniffer": "^2.4"
+    }
 }
