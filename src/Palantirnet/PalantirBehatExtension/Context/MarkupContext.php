@@ -1,21 +1,29 @@
 <?php
 /**
- * @file
- * Behat context class with functionality that is shared across custom contexts.
+ * Contains Palantirnet\PalantirBehatExtension\Context\MarkupContext.
  *
- * @copyright (c) Copyright 2015 Palantir.net, Inc.
+ * @copyright 2015 Palantir.net, Inc.
  */
 
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\MarkupContext as DrupalExtensionMarkupContext;
 
+/**
+ * Behat context class with functionality that is shared across custom contexts.
+ */
 class MarkupContext extends DrupalExtensionMarkupContext
 {
 
 
     /**
+     * Output the markup of a particular region.
+     *
      * @Then I dump the :region region
+     *
+     * @param string $region A region name from the behat config.
+     *
+     * @return void
      */
     public function dumpRegion($region)
     {
@@ -25,7 +33,11 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
+     * Output the current URL.
+     *
      * @Then I dump the URL
+     *
+     * @return void
      */
     public function dumpUrl()
     {
@@ -35,7 +47,15 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
+     * Test for the presence of a tag containing some text.
+     *
      * @Then I( should) see :text in the :tag element in the :region( region)
+     *
+     * @param string $text   The text to look for.
+     * @param string $tag    A CSS selector.
+     * @param string $region A region name from the behat config.
+     *
+     * @return void
      */
     public function assertRegionElementText($text, $tag, $region)
     {
@@ -43,15 +63,15 @@ class MarkupContext extends DrupalExtensionMarkupContext
         $results   = $regionObj->findAll('css', $tag);
 
         $found = false;
-        if (!empty($results)) {
+        if (empty($results) === false) {
             foreach ($results as $result) {
-                if ($result->getText() == $text) {
+                if ($result->getText() === $text) {
                     $found = true;
                 }
             }
         }
 
-        if (!$found) {
+        if ($found === false) {
             throw new \Exception(sprintf('The text "%s" was not found in the "%s" element in the "%s" region on the page %s', $text, $tag, $region, $this->getSession()->getCurrentUrl()));
         }
 
@@ -59,7 +79,15 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
+     * Test for absence of a tag containing some text.
+     *
      * @Then I should not see :text in the :tag element in the :region( region)
+     *
+     * @param string $text   The text to look for.
+     * @param string $tag    A CSS selector.
+     * @param string $region A region name from the behat config.
+     *
+     * @return void
      */
     public function assertNotRegionElementText($text, $tag, $region)
     {
@@ -67,15 +95,15 @@ class MarkupContext extends DrupalExtensionMarkupContext
         $results   = $regionObj->findAll('css', $tag);
 
         $found = false;
-        if (!empty($results)) {
+        if (empty($results) === false) {
             foreach ($results as $result) {
-                if ($result->getText() == $text) {
+                if ($result->getText() === $text) {
                     $found = true;
                 }
             }
         }
 
-        if ($found) {
+        if ($found === true) {
             throw new \Exception(sprintf('The text "%s" was found in the "%s" element in the "%s" region on the page %s', $text, $tag, $region, $this->getSession()->getCurrentUrl()));
         }
 
@@ -83,7 +111,13 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
+     * Validate that a particular field label appears on the page.
+     *
      * @Then I should see a/an :label field
+     *
+     * @param string $label The field label text.
+     *
+     * @return void
      */
     public function assertFieldByLabel($label)
     {
@@ -98,7 +132,13 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
+     * Validate that a particular fieldset label does not appear on the page.
+     *
      * @Then I should not see a/an :label field
+     *
+     * @param string $label The fieldset label text.
+     *
+     * @return void
      */
     public function assertNotFieldByLabel($label)
     {
@@ -115,7 +155,13 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
+     * Validate that a particular fieldset label appears on the page.
+     *
      * @Then I should see a/an :label multivalue field
+     *
+     * @param string $label The fieldset label text.
+     *
+     * @return void
      */
     public function assertFieldsetByLabel($label)
     {
