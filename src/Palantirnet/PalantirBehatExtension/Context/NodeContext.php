@@ -13,6 +13,7 @@ use Drupal\DrupalExtension\Context\RawDrupalContext;
 class NodeContext extends SharedDrupalContext
 {
 
+
     /**
      * @When I view the :contentType content :title
      */
@@ -20,7 +21,9 @@ class NodeContext extends SharedDrupalContext
     {
         $node = $this->findNodeByTitle($contentType, $title);
         $this->getSession()->visit($this->locatePath("node/{$node->nid}"));
-    }
+
+    }//end assertNodeByTitle()
+
 
     /**
      * @When I edit the :contentType content :title
@@ -30,5 +33,8 @@ class NodeContext extends SharedDrupalContext
         $node = $this->findNodeByTitle($contentType, $title);
         $this->getSession()->visit($this->locatePath("node/{$node->nid}/edit"));
         $this->assertSession()->statusCodeEquals('200');
-    }
-}
+
+    }//end assertEditNodeByTitle()
+
+
+}//end class

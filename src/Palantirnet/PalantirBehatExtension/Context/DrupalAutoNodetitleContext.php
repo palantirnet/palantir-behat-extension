@@ -18,7 +18,8 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
      *   Whether auto_nodetitle should be disabled for nodes created
      *   during the current scenario.
      */
-    var $disableAutoNodetitle = FALSE;
+    var $disableAutoNodetitle = false;
+
 
     /**
      * @BeforeScenario @disableAutoNodetitle
@@ -29,8 +30,10 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
      */
     public function disableAutoNodetitle()
     {
-        $this->disableAutoNodetitle = TRUE;
-    }
+        $this->disableAutoNodetitle = true;
+
+    }//end disableAutoNodetitle()
+
 
     /**
      * @BeforeNodeCreate
@@ -39,8 +42,10 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
     {
         if ($this->disableAutoNodetitle) {
             $node = $scope->getEntity();
-            $node->auto_nodetitle_applied = TRUE;
+            $node->auto_nodetitle_applied = true;
         }
-    }
 
-}
+    }//end prepareAutoNodetitleNode()
+
+
+}//end class

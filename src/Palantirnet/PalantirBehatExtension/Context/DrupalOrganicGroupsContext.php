@@ -31,14 +31,17 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     private $drupalContext;
 
+
     /**
      * @BeforeScenario
      */
     public function gatherContexts(BeforeScenarioScope $scope)
     {
-        $environment = $scope->getEnvironment();
+        $environment         = $scope->getEnvironment();
         $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
-    }
+
+    }//end gatherContexts()
+
 
     /**
      * @BeforeScenario
@@ -48,7 +51,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         if (!module_exists('og')) {
             throw new \Exception('The Organic Groups module is not installed.');
         }
-    }
+
+    }//end checkDependencies()
+
 
     /**
      * Get the Drupal user object for the logged-in user.
@@ -62,7 +67,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
     protected function getAccount()
     {
         return !empty($this->drupalContext->user) ? user_load($this->drupalContext->user->uid) : drupal_anonymous_user();
-    }
+
+    }//end getAccount()
+
 
     /**
      * @Given I am a/an :group_role on/of the :group_node_type group :group_node_title
@@ -76,14 +83,18 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         $group_node = $this->getNodeByTitle($group_node_type, $group_node_title);
 
         // Add the logged-in user to the group.
-        og_group('node', $group_node->nid, array(
-            'entity_type' => 'user',
-            'entity' => $this->getAccount(),
-        ));
+        og_group(
+            'node',
+            $group_node->nid,
+            array(
+             'entity_type' => 'user',
+             'entity'      => $this->getAccount(),
+            )
+        );
 
         $og_roles = og_get_user_roles_name();
-        $og_rid = array_search($group_role, $og_roles);
-        if ($og_rid === FALSE) {
+        $og_rid   = array_search($group_role, $og_roles);
+        if ($og_rid === false) {
             throw new \Exception(sprintf('Organic Groups role "%s" does not exist.', $group_role));
         }
 
@@ -92,7 +103,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
 
         // Make sure it all worked.
         $this->assertHasGroupRole($group_role, $group_node_type, $group_node_title);
-    }
+
+    }//end assertGroupRole()
+
 
     /**
      * @Then I have the :group_role role on :group_node_type group :group_node_title
@@ -108,7 +121,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         if (!in_array($group_role, $user_og_roles)) {
             throw new \Exception(sprintf('User does not have the Organic Groups role "%s" on %s group "%s"', $group_role, $group_node_type, $group_node_title));
         }
-    }
+
+    }//end assertHasGroupRole()
+
 
     /**
      * @Given a :type group node called :title
@@ -127,7 +142,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         }
 
         return $node;
-    }
+
+    }//end assertNodeIsGroup()
+
 
     /**
      * @Then I can create :type content in the :group_type group :group_title
@@ -140,7 +157,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         if (!og_user_access('node', $group->nid, "create $type content", $this->getAccount())) {
             throw new \Exception(sprintf('User can not create "%s" content in the "%s" group "%s".', $type, $group_type, $group_title));
         }
-    }
+
+    }//end assertCreateGroupContent()
+
 
     /**
      * @Then I can not create :type content in the :group_type group :group_title
@@ -156,7 +175,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         if (og_user_access('node', $group->nid, "create $type content", $this->getAccount())) {
             throw new \Exception(sprintf('User can create "%s" content in the "%s" group "%s".', $type, $group_type, $group_title));
         }
-    }
+
+    }//end assertNotCreateGroupContent()
+
 
     /**
      * @Then I can edit :type content in the :group_type group :group_title
@@ -169,7 +190,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         if (!og_user_access('node', $group->nid, "update any $type content", $this->getAccount())) {
             throw new \Exception(sprintf('User can not edit "%s" content in the "%s" group "%s".', $type, $group_type, $group_title));
         }
-    }
+
+    }//end assertEditGroupContent()
+
 
     /**
      * @Then I can not edit :type content in the :group_type group :group_title
@@ -182,7 +205,9 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         if (og_user_access('node', $group->nid, "update any $type content", $this->getAccount())) {
             throw new \Exception(sprintf('User can edit "%s" content in the "%s" group "%s".', $type, $group_type, $group_title));
         }
-    }
+
+    }//end assertNotEditGroupContent()
+
 
     /**
      * Verify that the group node is actually a group, and the content type is a
@@ -193,6 +218,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
         if (!og_is_group_content_type('node', $type)) {
             throw new \Exception(sprintf('Content of type "%s" can not be added to any group because it is not a group content type.'));
         }
-    }
 
-}
+    }//end assertGroupContent()
+
+
+}//end class

@@ -13,20 +13,23 @@ use Behat\Gherkin\Node\TableNode;
 class DrupalFileContext extends SharedDrupalContext
 {
 
+
     /**
      * @Given the file :filename
      */
     public function createFile($filename, $status = 1)
     {
         $file = (object) array(
-            'filename' => $filename,
-            'status' => $status,
-        );
+                          'filename' => $filename,
+                          'status'   => $status,
+                         );
 
         $file = $this->expandFile($file);
 
         $this->fileCreate($file);
-    }
+
+    }//end createFile()
+
 
     /**
      * @Given files:
@@ -45,6 +48,8 @@ class DrupalFileContext extends SharedDrupalContext
 
             $this->fileCreate($file);
         }
-    }
 
-}
+    }//end createFiles()
+
+
+}//end class

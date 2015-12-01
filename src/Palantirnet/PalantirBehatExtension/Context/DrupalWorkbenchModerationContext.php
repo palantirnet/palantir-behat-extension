@@ -18,7 +18,8 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
      *   Whether workbench_moderation should be disabled for nodes created
      *   during the current scenario.
      */
-    var $disableWorkbenchModeration = FALSE;
+    var $disableWorkbenchModeration = false;
+
 
     /**
      * @BeforeScenario @disableWorkbenchModeration
@@ -28,8 +29,10 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
      */
     public function disableWorkbenchModeration()
     {
-        $this->disableWorkbenchModeration = TRUE;
-    }
+        $this->disableWorkbenchModeration = true;
+
+    }//end disableWorkbenchModeration()
+
 
     /**
      * @BeforeNodeCreate
@@ -37,14 +40,16 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
     public function prepareWorkbenchModerationNode(BeforeNodeCreateScope $scope)
     {
         if ($this->disableWorkbenchModeration) {
-            $node = $scope->getEntity();
+            $node         = $scope->getEntity();
             $node->status = 1;
-            
+
             // This is a hack; workbench_moderation_node_update() will return
             // without applying moderation if it thinks that it is being called
             // recursively.
             $node->updating_live_revision = 'behat_skip';
         }
-    }
 
-}
+    }//end prepareWorkbenchModerationNode()
+
+
+}//end class

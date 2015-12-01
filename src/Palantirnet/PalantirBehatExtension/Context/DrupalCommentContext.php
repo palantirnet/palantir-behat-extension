@@ -48,14 +48,17 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     private $drupalContext;
 
+
     /**
      * @BeforeScenario
      */
     public function gatherContexts(BeforeScenarioScope $scope)
     {
-        $environment = $scope->getEnvironment();
+        $environment         = $scope->getEnvironment();
         $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
-    }
+
+    }//end gatherContexts()
+
 
     /**
      * @BeforeScenario
@@ -65,21 +68,26 @@ class DrupalCommentContext extends SharedDrupalContext
         if (!module_exists('comment')) {
             throw new \Exception('The Comment module is not available.');
         }
-    }
+
+    }//end checkDependencies()
+
 
     /**
      * Remove any created comments.
      *
      * @AfterScenario
      */
-    public function cleanComments() {
-      // Remove any comments that were created.
-      foreach ($this->comments as $comment) {
-          comment_delete($comment->cid);
-      }
+    public function cleanComments()
+    {
+        // Remove any comments that were created.
+        foreach ($this->comments as $comment) {
+            comment_delete($comment->cid);
+        }
 
-      $this->comments = array();
-    }
+        $this->comments = array();
+
+    }//end cleanComments()
+
 
     /**
      * Get the Drupal user object for the logged-in user.
@@ -93,7 +101,9 @@ class DrupalCommentContext extends SharedDrupalContext
     protected function getAccount()
     {
         return !empty($this->drupalContext->user) ? user_load($this->drupalContext->user->uid) : drupal_anonymous_user();
-    }
+
+    }//end getAccount()
+
 
     /**
      * Save a comment.
@@ -122,11 +132,11 @@ class DrupalCommentContext extends SharedDrupalContext
 
         // Add default values.
         $defaults = array(
-            'uid' => 0,
-            'cid' => NULL,
-            'pid' => NULL,
-            'status' => 1,
-        );
+                     'uid'    => 0,
+                     'cid'    => null,
+                     'pid'    => null,
+                     'status' => 1,
+                    );
 
         foreach ($defaults as $key => $default) {
             if (!isset($comment->$key)) {
@@ -139,33 +149,38 @@ class DrupalCommentContext extends SharedDrupalContext
 
         // Attempt to decipher any fields that may be specified.
         $this->expandEntityFields('comment', $comment);
-        
+
         comment_save($comment);
 
         $this->comments[] = $comment;
 
         return $comment;
-    }
 
-  /**
-   * Copy of \Drupal\Driver\Cores\AbstractCore:expandEntityFields().
-   *
-   * Expands properties on the given entity object to the expected structure.
-   *
-   * @param \stdClass $entity
-   *   Entity object.
-   */
-  protected function expandEntityFields($entity_type, \stdClass $entity) {
-      $field_types = $this->getDriver()->getCore()->getEntityFieldTypes($entity_type);
+    }//end createComment()
 
-      foreach ($field_types as $field_name => $type) {
-          if (isset($entity->$field_name)) {
-              $entity->$field_name = $this->getDriver()->getCore()
-                  ->getFieldHandler($entity, $entity_type, $field_name)
-                  ->expand($entity->$field_name);
-          }
-      }
-  }
+
+    /**
+     * Copy of \Drupal\Driver\Cores\AbstractCore:expandEntityFields().
+     *
+     * Expands properties on the given entity object to the expected structure.
+     *
+     * @param \stdClass $entity
+     *   Entity object.
+     */
+    protected function expandEntityFields($entity_type, \stdClass $entity)
+    {
+        $field_types = $this->getDriver()->getCore()->getEntityFieldTypes($entity_type);
+
+        foreach ($field_types as $field_name => $type) {
+            if (isset($entity->$field_name)) {
+                $entity->$field_name = $this->getDriver()->getCore()
+                    ->getFieldHandler($entity, $entity_type, $field_name)
+                    ->expand($entity->$field_name);
+            }
+        }
+
+    }//end expandEntityFields()
+
 
     /**
      * @When I add the comment :text to the :type content :title
@@ -177,7 +192,7 @@ class DrupalCommentContext extends SharedDrupalContext
             throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
         }
 
-        $comment = new stdclass;
+        $comment      = new stdclass;
         $comment->nid = $node->nid;
         $comment->uid = $this->getAccount()->uid;
         $comment->comment_body = $text;
@@ -185,8 +200,10 @@ class DrupalCommentContext extends SharedDrupalContext
         $this->createComment($comment, $node);
 
         // Set internal page to the commented-on node.
-        $this->getSession()->visit($this->locatePath('/node/' . $node->nid));
-    }
+        $this->getSession()->visit($this->locatePath('/node/'.$node->nid));
+
+    }//end createCommentOnContent()
+
 
     /**
      * @Given comments on :type content :title:
@@ -205,10 +222,12 @@ class DrupalCommentContext extends SharedDrupalContext
         }
 
         foreach ($commentsTable->getHash() as $commentHash) {
-            $comment = (object) $commentHash;
+            $comment      = (object) $commentHash;
             $comment->nid = $node->nid;
             $this->createComment($comment);
         }
-    }
 
-}
+    }//end createCommentsOnContent()
+
+
+}//end class

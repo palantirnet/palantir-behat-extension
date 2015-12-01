@@ -11,6 +11,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 class DrupalSetupContext extends SharedDrupalContext
 {
 
+
     /**
      * @Given a Drupal site
      */
@@ -19,7 +20,9 @@ class DrupalSetupContext extends SharedDrupalContext
         if (!$this->getDriver()->isBootstrapped()) {
             throw new \Exception('The Drupal site is not bootstrapped.');
         }
-    }
+
+    }//end assertDrupal()
+
 
     /**
      * @Then the :module module is installed
@@ -29,7 +32,9 @@ class DrupalSetupContext extends SharedDrupalContext
         if (!module_exists('features')) {
             throw new \Exception(sprintf('The "%s" module is not installed.', $module));
         }
-    }
+
+    }//end assertModuleInstalled()
+
 
     /**
      * @Then no Drupal features are overridden
@@ -39,7 +44,7 @@ class DrupalSetupContext extends SharedDrupalContext
         $this->assertModuleInstalled('features');
 
         module_load_include('inc', 'features', 'features.export');
-        $features = features_get_features(NULL, TRUE);
+        $features = features_get_features(null, true);
 
         $overridden = array();
         foreach ($features as $k => $m) {
@@ -51,6 +56,8 @@ class DrupalSetupContext extends SharedDrupalContext
         if (!empty($overridden)) {
             throw new \Exception(sprintf('%d Drupal features are overridden: %s.', count($overridden), implode(', ', $overridden)));
         }
-    }
 
-}
+    }//end assertDefaultDrupalFeatures()
+
+
+}//end class

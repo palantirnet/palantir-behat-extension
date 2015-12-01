@@ -28,8 +28,8 @@ use Drupal\DrupalDriverManager;
 class EntityDataContext extends SharedDrupalContext
 {
 
-    protected $currentEntity = NULL;
-    protected $currentEntityType = NULL;
+    protected $currentEntity     = null;
+    protected $currentEntityType = null;
 
 
     /**
@@ -39,9 +39,11 @@ class EntityDataContext extends SharedDrupalContext
     {
         $node = $this->findNodeByTitle($contentType, $title);
 
-        $this->currentEntity = $node;
+        $this->currentEntity     = $node;
         $this->currentEntityType = 'node';
-    }
+
+    }//end assertNodeByTitle()
+
 
     /**
      * @When I examine the :termName term in the :vocabulary( vocabulary)
@@ -50,9 +52,11 @@ class EntityDataContext extends SharedDrupalContext
     {
         $term = $this->findTermByName($termName, $vocabulary);
 
-        $this->currentEntity = $term;
+        $this->currentEntity     = $term;
         $this->currentEntityType = 'taxonomy_term';
-    }
+
+    }//end assertTermByName()
+
 
     /**
      * @When I examine the user :userName
@@ -61,9 +65,11 @@ class EntityDataContext extends SharedDrupalContext
     {
         $account = $this->findUserByName($userName);
 
-        $this->currentEntity = $account;
+        $this->currentEntity     = $account;
         $this->currentEntityType = 'user';
-    }
+
+    }//end assertUserByName()
+
 
     /**
      * @Then entity property :property should be :value
@@ -74,7 +80,9 @@ class EntityDataContext extends SharedDrupalContext
         if ($wrapper->$property->value() != $value) {
             throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
         }
-    }
+
+    }//end assertEntityPropertyValue()
+
 
     /**
      * @Then entity property :property should not be :value
@@ -85,14 +93,17 @@ class EntityDataContext extends SharedDrupalContext
         if ($wrapper->$property->value() == $value) {
             throw new \Exception(sprintf('Property "%s" is "%s"', $property, $value));
         }
-    }
+
+    }//end assertNotEntityPropertyValue()
+
 
     /**
      * @Then entity field :field should contain :value
      */
     public function assertEntityFieldValue($field, $value)
     {
-        if (empty($field) || empty($value)) { return; }
+        if (empty($field) || empty($value)) { return;
+        }
 
         // Use a per-field-type test method, if it is present.
         $field_info = field_info_field($field);
@@ -100,9 +111,9 @@ class EntityDataContext extends SharedDrupalContext
             throw new \Exception(sprintf('Field "%s" does not exist', $field));
         }
 
-        $method_name = 'assertEntityFieldValue' . str_replace(' ', '', ucwords(str_replace('_', ' ', $field_info['type'])));
+        $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_info['type'])));
         if (method_exists($this, $method_name)) {
-          return $this->$method_name($field, $value);
+            return $this->$method_name($field, $value);
         }
 
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
@@ -113,7 +124,9 @@ class EntityDataContext extends SharedDrupalContext
         if (!in_array($value, $field_value)) {
             throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
         }
-    }
+
+    }//end assertEntityFieldValue()
+
 
     /**
      * @Then entity field :field should not contain :value
@@ -129,14 +142,16 @@ class EntityDataContext extends SharedDrupalContext
         }
 
         throw new \Exception(sprintf('Field "%s" contains "%s"', $field, $value));
-    }
+
+    }//end assertNotEntityFieldValue()
+
 
     /**
      * Test a link field for its URL value.
      *
      * @param string $field
      *   A Drupal field name.
-     * @param mixed $value
+     * @param mixed  $value
      *   The value to look for.
      *
      * @throws \Exception
@@ -155,14 +170,16 @@ class EntityDataContext extends SharedDrupalContext
         }
 
         throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
-    }
+
+    }//end assertEntityFieldValueLinkField()
+
 
     /**
      * Test a text field for a partial string.
      *
      * @param string $field
      *   A Drupal field name.
-     * @param mixed $value
+     * @param mixed  $value
      *   The value to look for.
      *
      * @throws \Exception
@@ -180,30 +197,32 @@ class EntityDataContext extends SharedDrupalContext
         // ... which makes it somewhat hard to tell single values from multiple
         // values.
         if (is_string($field_value)) {
-          $field_value = array(array('value' => $field_value));
+            $field_value = array(array('value' => $field_value));
         }
-        elseif (is_array($field_value) && isset($field_value['value'])) {
-          $field_value = array($field_value);
+        else if (is_array($field_value) && isset($field_value['value'])) {
+            $field_value = array($field_value);
         }
-        elseif (!is_array($field_value)) {
-          $field_value = array();
+        else if (!is_array($field_value)) {
+            $field_value = array();
         }
 
         foreach ($field_value as $f) {
-            if (strpos($f['value'], $value) !== FALSE) {
+            if (strpos($f['value'], $value) !== false) {
                 return;
             }
         }
 
         throw new \Exception(sprintf('Field "%s" does not contain partial text "%s"', $field, $value));
-    }
+
+    }//end assertEntityFieldValueTextLong()
+
 
     /**
      * Test a file field for a Drupal stream wrapper URI.
      *
      * @param string $field
      *   A Drupal field name.
-     * @param mixed $value
+     * @param mixed  $value
      *   The value to look for.
      *
      * @throws \Exception
@@ -219,20 +238,22 @@ class EntityDataContext extends SharedDrupalContext
         $field_value = !isset($field_value['fid']) ? $field_value : array($field_value);
 
         foreach ($field_value as $f) {
-            if (strpos($f['uri'], $value) !== FALSE) {
+            if (strpos($f['uri'], $value) !== false) {
                 return;
             }
         }
 
         throw new \Exception(sprintf('Field "%s" does not contain file with URI "%s"', $field, $value));
-    }
+
+    }//end assertEntityFieldValueFile()
+
 
     /**
      * Test a taxonomy term reference field for a term name.
      *
      * @param string $field
      *   A Drupal field name.
-     * @param mixed $value
+     * @param mixed  $value
      *   The value to look for.
      *
      * @throws \Exception
@@ -255,27 +276,29 @@ class EntityDataContext extends SharedDrupalContext
         }
 
         throw new \Exception(sprintf('Field "%s" does not contain term "%s"', $field, $value));
-    }
+
+    }//end assertEntityFieldValueTaxonomyTermReference()
+
 
     /**
      * Test an entity reference field for an entity label.
      *
      * @param string $field
      *   A Drupal field name.
-     * @param mixed $value
+     * @param mixed  $value
      *   The value to look for.
      *
      * @throws \Exception
      */
     public function assertEntityFieldValueEntityReference($field, $value)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();
 
         // Use the entityreference selection handler to get the label for each
         // referenced entity.
         $field_info = field_info_field($field);
-        $handler = entityreference_get_selection_handler($field_info);
+        $handler    = entityreference_get_selection_handler($field_info);
 
         if (!empty($field_value)) {
             foreach ($field_value as $entity) {
@@ -287,14 +310,16 @@ class EntityDataContext extends SharedDrupalContext
         }
 
         throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s"', $field, $value));
-    }
+
+    }//end assertEntityFieldValueEntityReference()
+
 
     /**
      * Test a date field for some date.
      *
      * @param string $field
      *   A Drupal field name.
-     * @param mixed $value
+     * @param mixed  $value
      *   The value to look for.
      *
      * @throws \Exception
@@ -310,7 +335,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueDatetime($field, $value)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();
 
         if (is_scalar($field_value)) {
@@ -341,17 +366,23 @@ class EntityDataContext extends SharedDrupalContext
             if (strtotime($value) == $v) {
                 return;
             }
-        }
+        }//end foreach
 
         throw new \Exception(sprintf('Field "%s" does not contain datetime "%s" (%s)', $field, strtotime($value), $value));
-    }
+
+    }//end assertEntityFieldValueDatetime()
+
 
     /**
      * @Then I dump the contents of( field) :field
      */
-    public function dumpField($field) {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+    public function dumpField($field)
+    {
+        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();
         print_r($field_value);
-    }
-}
+
+    }//end dumpField()
+
+
+}//end class

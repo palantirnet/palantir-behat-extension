@@ -19,6 +19,7 @@ use Drupal\DrupalExtension\Context\RawDrupalContext;
 class SharedDrupalContext extends RawDrupalContext
 {
 
+
     /**
      * Get node object by its title.
      *
@@ -38,13 +39,15 @@ class SharedDrupalContext extends RawDrupalContext
             $nid = key($entities['node']);
             return node_load($nid);
         }
-        elseif (!empty($entities['node']) && count($entities['node']) > 1) {
+        else if (!empty($entities['node']) && count($entities['node']) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" node entitled "%s"', $contentType, $title));
         }
         else {
             throw new \Exception(sprintf('No "%s" node entitled "%s" exists', $contentType, $title));
         }
-    }
+
+    }//end findNodeByTitle()
+
 
     /**
      * Get node object by its title, creating the node if it does not yet exist.
@@ -59,16 +62,18 @@ class SharedDrupalContext extends RawDrupalContext
         }
         catch (\Exception $e) {
             $new_node = (object) array(
-              'title' => $title,
-              'type' => $contentType,
-              'body' => $this->getRandom()->string(255),
-            );
+                                  'title' => $title,
+                                  'type'  => $contentType,
+                                  'body'  => $this->getRandom()->string(255),
+                                 );
 
             $node = $this->nodeCreate($new_node);
         }
 
         return $node;
-    }
+
+    }//end getNodeByTitle()
+
 
     /**
      * Get a term object by name and vocabulary.
@@ -89,13 +94,15 @@ class SharedDrupalContext extends RawDrupalContext
             $id = key($entities['taxonomy_term']);
             return taxonomy_term_load($id);
         }
-        elseif (!empty($entities['taxonomy_term']) && count($entities['taxonomy_term']) > 1) {
+        else if (!empty($entities['taxonomy_term']) && count($entities['taxonomy_term']) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" term entitled "%s"', $vocabulary, $termName));
         }
         else {
             throw new \Exception(sprintf('No "%s" term entitled "%s" exists', $vocabulary, $termName));
         }
-    }
+
+    }//end findTermByName()
+
 
     /**
      * Get a user object by name.
@@ -115,13 +122,14 @@ class SharedDrupalContext extends RawDrupalContext
             $id = key($entities['user']);
             return user_load($id);
         }
-        elseif (!empty($entities['user']) && count($entities['user']) > 1) {
+        else if (!empty($entities['user']) && count($entities['user']) > 1) {
             throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
         }
         else {
             throw new \Exception(sprintf('No user named "%s" exists', $userName));
         }
-    }
+
+    }//end findUserByName()
 
 
     /**
@@ -138,7 +146,7 @@ class SharedDrupalContext extends RawDrupalContext
     public function fileCreate($file)
     {
         // Save the file.
-        $dest = file_build_uri(drupal_basename($file->uri));
+        $dest   = file_build_uri(drupal_basename($file->uri));
         $result = file_copy($file, $dest);
 
         // Stash the file object for later cleanup.
@@ -150,7 +158,9 @@ class SharedDrupalContext extends RawDrupalContext
         }
 
         return $result;
-    }
+
+    }//end fileCreate()
+
 
     /**
      * Add required file properties.
@@ -171,7 +181,7 @@ class SharedDrupalContext extends RawDrupalContext
 
         // Set the URI to the path to the file within the MinkExtension's
         // files_path parameter.
-        $file->uri = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file->filename;
+        $file->uri = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file->filename;
 
         // Assign authorship if none exists and `author` is passed.
         if (!isset($file->uid) && !empty($file->author) && ($account = user_load_by_name($file->author))) {
@@ -180,9 +190,9 @@ class SharedDrupalContext extends RawDrupalContext
 
         // Add default values.
         $defaults = array(
-            'uid' => 0,
-            'status' => 1,
-        );
+                     'uid'    => 0,
+                     'status' => 1,
+                    );
 
         foreach ($defaults as $key => $default) {
             if (!isset($file->$key)) {
@@ -191,7 +201,9 @@ class SharedDrupalContext extends RawDrupalContext
         }
 
         return $file;
-    }
+
+    }//end expandFile()
+
 
     /**
      * Keep track of files so they can be cleaned up.
@@ -199,6 +211,7 @@ class SharedDrupalContext extends RawDrupalContext
      * @var array
      */
     protected $files = array();
+
 
     /**
      * Remove any created files.
@@ -208,10 +221,12 @@ class SharedDrupalContext extends RawDrupalContext
     public function cleanFiles()
     {
         foreach ($this->files as $file) {
-            file_delete($file, TRUE);
+            file_delete($file, true);
         }
 
         $this->files = array();
-    }
 
-}
+    }//end cleanFiles()
+
+
+}//end class
