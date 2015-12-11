@@ -314,12 +314,14 @@ class EntityDataContext extends SharedDrupalContext
 
         foreach ($field_value as $v) {
             if (is_array($v)) {
+                // Check the start date
                 if (array_key_exists('value', $v)) {
                     if (strtotime($value) == strtotime($v['value'])) {
                         return;
                     }
                 }
 
+                // Check the end date
                 if (array_key_exists('value2', $v)) {
                     if (strtotime($value) == strtotime($v['value2'])) {
                         return;
