@@ -298,6 +298,15 @@ class EntityDataContext extends SharedDrupalContext
      *   The value to look for.
      *
      * @throws \Exception
+     *
+     * @todo : Update method to handle date fields with start and end dates
+     * The call to $wrapper->$field->value() returns either an array or a scalar
+     * because entity_metadata_wrapper() makes the date field values array
+     * unpredictable. When working with date fields that have both a start and
+     * end time, an array is returned instead of a scalar. If we want to test
+     * for start and end dates, we would want to use Behat syntax similar to
+     * "Then entity field ":field should contain "<start_date> - <end_date>".
+     * This method would need to be updated to handle that approach.
      */
     public function assertEntityFieldValueDatetime($field, $value)
     {
@@ -313,6 +322,22 @@ class EntityDataContext extends SharedDrupalContext
         }
 
         foreach ($field_value as $v) {
+            if (is_array($v)) {
+                // Check the start date
+                if (array_key_exists('value', $v)) {
+                    if (strtotime($value) == strtotime($v['value'])) {
+                        return;
+                    }
+                }
+
+                // Check the end date
+                if (array_key_exists('value2', $v)) {
+                    if (strtotime($value) == strtotime($v['value2'])) {
+                        return;
+                    }
+                }
+            }
+
             if (strtotime($value) == $v) {
                 return;
             }
