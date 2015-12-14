@@ -10,7 +10,7 @@ The Palantir Behat Drupal Extension provides additional step definitions for tes
 
 * `NodeContext`: test viewing and editing nodes by title
 * `DrupalCommentContext`: test commenting functionality
-* `DrupalFileContext`: add files in your tests
+* `DrupalFileContext`: add files in your tests (see [PR #3](https://github.com/palantirnet/palantir-behat-extension/pull/3) for usage details)
 * `DrupalOrganicGroupsContext`: test access to Organic Groups
 * `DrupalSetupContext`: test for enabled modules and overridden features
 * `EntityDataContext`: test field data and properties on nodes, terms, and users directly, without relying on output (or write a simpletest...)
