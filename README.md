@@ -11,6 +11,7 @@ The Palantir Behat Drupal Extension provides additional step definitions for tes
 * `NodeContext`: test viewing and editing nodes by title
 * `DrupalCommentContext`: test commenting functionality
 * `DrupalOrganicGroupsContext`: test access to Organic Groups
+* `DrupalSetupContext`: test for enabled modules and overridden features
 * `EntityDataContext`: test field data and properties on nodes, terms, and users directly, without relying on output (or write a simpletest...)
 
 ### Disable module functionality during tests
@@ -47,7 +48,15 @@ default:
   suites:
     default:
       contexts:
-        - Palantirnet\PalantirBehatExtension\Context\NodeContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalAutoNodetitleContext.php
+        - Palantirnet\PalantirBehatExtension\Context\DrupalCommentContext.php
+        - Palantirnet\PalantirBehatExtension\Context\DrupalOrganicGroupsContext.php
+        - Palantirnet\PalantirBehatExtension\Context\DrupalSetupContext.php
+        - Palantirnet\PalantirBehatExtension\Context\DrupalWorkbenchModerationContext.php
+        - Palantirnet\PalantirBehatExtension\Context\EntityDataContext.php
+        - Palantirnet\PalantirBehatExtension\Context\MarkupContext.php
+        - Palantirnet\PalantirBehatExtension\Context\NodeContext.php
+        - Palantirnet\PalantirBehatExtension\Context\SharedDrupalContext.php
 ```
 
 ----
