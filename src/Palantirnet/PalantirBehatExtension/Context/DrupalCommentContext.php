@@ -146,8 +146,11 @@ class DrupalCommentContext extends SharedDrupalContext
     protected function createComment($comment)
     {
         // Assign authorship if none exists and `author` is passed.
-        if (isset($comment->uid) === false && empty($comment->author) === false && ($account = user_load_by_name($comment->author)) === true) {
-            $comment->uid = $account->uid;
+        if (isset($comment->uid) === false && empty($comment->author) === false) {
+            $account = user_load_by_name($comment->author);
+            if ($account !== false) {
+                $comment->uid = $account->uid;
+            }
         }
 
         // The created field may come in as a readable date, rather than a
@@ -165,7 +168,7 @@ class DrupalCommentContext extends SharedDrupalContext
                     );
 
         foreach ($defaults as $key => $default) {
-            if (isset($comment->$key) === true) {
+            if (isset($comment->$key) === false) {
                 $comment->$key = $default;
             }
         }
@@ -211,6 +214,26 @@ class DrupalCommentContext extends SharedDrupalContext
 
 
     /**
+     * Assert commenting is open on a particular node.
+     *
+     * @Given comments on the :type content :title are open
+     *
+     * @param string $type  The machine name of a Drupal content type.
+     * @param string $title The title of a piece of Drupal content.
+     *
+     * @return void
+     */
+    public function assertCommentsAreOpen($type, $title)
+    {
+        $node = $this->getNodeByTitle($type, $title);
+        if ((int) $node->comment !== COMMENT_NODE_OPEN) {
+            throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
+        }
+
+    }//end assertCommentsAreOpen()
+
+
+    /**
      * Add a comment to a node, creating the node if it doesn't already exist.
      *
      * @When I add the comment :text to the :type content :title
@@ -223,10 +246,9 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     function createCommentOnContent($text, $type, $title)
     {
+        $this->assertCommentsAreOpen($type, $title);
+
         $node = $this->getNodeByTitle($type, $title);
-        if ($node->comment !== COMMENT_NODE_OPEN) {
-            throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
-        }
 
         $comment      = new stdclass;
         $comment->nid = $node->nid;
@@ -259,11 +281,9 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function createCommentsOnContent($type, $title, TableNode $commentsTable)
     {
-        $node = $this->getNodeByTitle($type, $title);
+        $this->assertCommentsAreOpen($type, $title);
 
-        if ($node->comment !== COMMENT_NODE_OPEN) {
-            throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
-        }
+        $node = $this->getNodeByTitle($type, $title);
 
         foreach ($commentsTable->getHash() as $commentHash) {
             $comment      = (object) $commentHash;
