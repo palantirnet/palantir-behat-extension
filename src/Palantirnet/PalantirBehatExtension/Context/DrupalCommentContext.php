@@ -1,9 +1,8 @@
 <?php
 /**
- * @file
- * Behat context with steps for testing Drupal commenting functionality.
+ * Contains Palantirnet\PalantirBehatExtension\Context\DrupalCommentContext.
  *
- * @copyright (c) Copyright 2015 Palantir.net, Inc.
+ * @copyright 2015 Palantir.net, Inc.
  */
 
 namespace Palantirnet\PalantirBehatExtension\Context;
@@ -16,7 +15,7 @@ use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\DrupalDriverManager;
 
 /**
- * Behat context for testing comments in Drupal.
+ * Behat context with steps for testing Drupal commenting functionality.
  *
  * For example:
  *
@@ -44,42 +43,67 @@ class DrupalCommentContext extends SharedDrupalContext
     protected $comments = array();
 
     /**
+     * Context from the scope environment, which gives us access to the current
+     * logged-in user.
+     *
      * @var \Behat\MinkExtension\Context\MinkContext
      */
-    private $drupalContext;
+    protected $drupalContext;
+
 
     /**
+     * Set up the Drupal context, which is used to access the current logged-in user.
+     *
      * @BeforeScenario
+     *
+     * @param BeforeScenarioScope $scope The Behat hook scope.
+     *
+     * @return void
      */
     public function gatherContexts(BeforeScenarioScope $scope)
     {
-        $environment = $scope->getEnvironment();
+        $environment         = $scope->getEnvironment();
         $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
-    }
+
+    }//end gatherContexts()
+
 
     /**
+     * Verify the Comment module is installed before the scenario begins.
+     *
      * @BeforeScenario
+     *
+     * @param BeforeScenarioScope $scope The Behat hook scope.
+     *
+     * @return void
      */
     public function checkDependencies(BeforeScenarioScope $scope)
     {
-        if (!module_exists('comment')) {
+        if (module_exists('comment') === false) {
             throw new \Exception('The Comment module is not available.');
         }
-    }
+
+    }//end checkDependencies()
+
 
     /**
      * Remove any created comments.
      *
      * @AfterScenario
+     *
+     * @return void
      */
-    public function cleanComments() {
-      // Remove any comments that were created.
-      foreach ($this->comments as $comment) {
-          comment_delete($comment->cid);
-      }
+    public function cleanComments()
+    {
+        // Remove any comments that were created.
+        foreach ($this->comments as $comment) {
+            comment_delete($comment->cid);
+        }
 
-      $this->comments = array();
-    }
+        $this->comments = array();
+
+    }//end cleanComments()
+
 
     /**
      * Get the Drupal user object for the logged-in user.
@@ -87,22 +111,34 @@ class DrupalCommentContext extends SharedDrupalContext
      * $this->drupalContext->user contains the user info, but not an actual user
      * object.
      *
+     * @todo this is the same as DrupalOrganicGroupsContext::getAccount(); should
+     *       these methods, and the gatherContexts() method, be moved to the
+     *       SharedDrupalContext class?
+     *
      * @return stdClass
      *   A Drupal user object.
      */
     protected function getAccount()
     {
-        return !empty($this->drupalContext->user) ? user_load($this->drupalContext->user->uid) : drupal_anonymous_user();
-    }
+        if (empty($this->drupalContext->user) === false) {
+            $account = user_load($this->drupalContext->user->uid);
+        } else {
+            $account = drupal_anonymous_user();
+        }
+
+        return $account;
+
+    }//end getAccount()
+
 
     /**
      * Save a comment.
      *
-     * @param stdclass $comment
-     *   A simple object representing comment data. Fields should be a simple
-     *   value or flat array, rather than using the Drupal field data structure.
-     *   Comments may use either the 'uid' or 'author' fields to attribute the
-     *   comment to a particular Drupal user.
+     * For the comment data object, fields should be a simple value or flat array,
+     * rather than using the Drupal field data structure. Comments may use either the
+     * 'uid' or 'author' fields to attribute the comment to a particular Drupal user.
+     *
+     * @param stdclass $comment Comment data.
      *
      * @return stdclass
      *   A Drupal comment object.
@@ -110,26 +146,26 @@ class DrupalCommentContext extends SharedDrupalContext
     protected function createComment($comment)
     {
         // Assign authorship if none exists and `author` is passed.
-        if (!isset($comment->uid) && !empty($comment->author) && ($account = user_load_by_name($comment->author))) {
+        if (isset($comment->uid) === false && empty($comment->author) === false && ($account = user_load_by_name($comment->author)) === true) {
             $comment->uid = $account->uid;
         }
 
         // The created field may come in as a readable date, rather than a
         // timestamp.
-        if (isset($entity->created) && !is_numeric($entity->created)) {
+        if (isset($entity->created) === true && is_numeric($entity->created) === false) {
             $entity->created = strtotime($entity->created);
         }
 
         // Add default values.
         $defaults = array(
-            'uid' => 0,
-            'cid' => NULL,
-            'pid' => NULL,
-            'status' => 1,
-        );
+                     'uid'    => 0,
+                     'cid'    => null,
+                     'pid'    => null,
+                     'status' => 1,
+                    );
 
         foreach ($defaults as $key => $default) {
-            if (!isset($comment->$key)) {
+            if (isset($comment->$key) === true) {
                 $comment->$key = $default;
             }
         }
@@ -139,45 +175,60 @@ class DrupalCommentContext extends SharedDrupalContext
 
         // Attempt to decipher any fields that may be specified.
         $this->expandEntityFields('comment', $comment);
-        
+
         comment_save($comment);
 
         $this->comments[] = $comment;
 
         return $comment;
-    }
 
-  /**
-   * Copy of \Drupal\Driver\Cores\AbstractCore:expandEntityFields().
-   *
-   * Expands properties on the given entity object to the expected structure.
-   *
-   * @param \stdClass $entity
-   *   Entity object.
-   */
-  protected function expandEntityFields($entity_type, \stdClass $entity) {
-      $field_types = $this->getDriver()->getCore()->getEntityFieldTypes($entity_type);
+    }//end createComment()
 
-      foreach ($field_types as $field_name => $type) {
-          if (isset($entity->$field_name)) {
-              $entity->$field_name = $this->getDriver()->getCore()
-                  ->getFieldHandler($entity, $entity_type, $field_name)
-                  ->expand($entity->$field_name);
-          }
-      }
-  }
 
     /**
+     * Copy of \Drupal\Driver\Cores\AbstractCore:expandEntityFields().
+     *
+     * Expands properties on the given entity object to the expected structure.
+     *
+     * @param string    $entity_type A Drupal entity type machine name.
+     * @param \stdClass $entity      Entity object.
+     *
+     * @return void
+     */
+    protected function expandEntityFields($entity_type, \stdClass $entity)
+    {
+        $field_types = $this->getDriver()->getCore()->getEntityFieldTypes($entity_type);
+
+        foreach ($field_types as $field_name => $type) {
+            if (isset($entity->$field_name) === true) {
+                $entity->$field_name = $this->getDriver()->getCore()
+                    ->getFieldHandler($entity, $entity_type, $field_name)
+                    ->expand($entity->$field_name);
+            }
+        }
+
+    }//end expandEntityFields()
+
+
+    /**
+     * Add a comment to a node, creating the node if it doesn't already exist.
+     *
      * @When I add the comment :text to the :type content :title
+     *
+     * @param string $text  The comment body text.
+     * @param string $type  A Drupal content type machine name.
+     * @param string $title The title of a Drupal node.
+     *
+     * @return void
      */
     function createCommentOnContent($text, $type, $title)
     {
         $node = $this->getNodeByTitle($type, $title);
-        if ($node->comment != COMMENT_NODE_OPEN) {
+        if ($node->comment !== COMMENT_NODE_OPEN) {
             throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
         }
 
-        $comment = new stdclass;
+        $comment      = new stdclass;
         $comment->nid = $node->nid;
         $comment->uid = $this->getAccount()->uid;
         $comment->comment_body = $text;
@@ -185,30 +236,42 @@ class DrupalCommentContext extends SharedDrupalContext
         $this->createComment($comment, $node);
 
         // Set internal page to the commented-on node.
-        $this->getSession()->visit($this->locatePath('/node/' . $node->nid));
-    }
+        $this->getSession()->visit($this->locatePath('/node/'.$node->nid));
+
+    }//end createCommentOnContent()
+
 
     /**
+     * Add multiple comments to a piece of content.
+     *
      * @Given comments on :type content :title:
      *
      *   Given comments on "post" content "My Test Post":
      *     | comment_subject               | comment_body             | author   |
      *     | This comment is about kitties | Kitties are the bestest. | Somebody |
      *     | ...                           | ...                      | ...      |
+     *
+     * @param string    $type          A Drupal content type machine name.
+     * @param string    $title         The title of a Drupal node.
+     * @param TableNode $commentsTable Comments data.
+     *
+     * @return void
      */
     public function createCommentsOnContent($type, $title, TableNode $commentsTable)
     {
         $node = $this->getNodeByTitle($type, $title);
 
-        if ($node->comment != COMMENT_NODE_OPEN) {
+        if ($node->comment !== COMMENT_NODE_OPEN) {
             throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
         }
 
         foreach ($commentsTable->getHash() as $commentHash) {
-            $comment = (object) $commentHash;
+            $comment      = (object) $commentHash;
             $comment->nid = $node->nid;
             $this->createComment($comment);
         }
-    }
 
-}
+    }//end createCommentsOnContent()
+
+
+}//end class

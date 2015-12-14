@@ -1,0 +1,11 @@
+machine:
+  php:
+    version: 5.5.21
+
+dependencies:
+  cache_directories:
+    - vendor
+
+test:
+  override:
+    - mkdir $CIRCLE_TEST_REPORTS/phpcs && vendor/bin/phpcs --report=junit --report-file=$CIRCLE_TEST_REPORTS/phpcs/output.xml

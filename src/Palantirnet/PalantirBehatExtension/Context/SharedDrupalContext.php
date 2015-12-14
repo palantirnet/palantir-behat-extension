@@ -1,7 +1,6 @@
 <?php
 /**
- * @file
- * Behat context class with functionality that is shared across custom contexts.
+ * Contains Palantirnet\PalantirBehatExtension\Context\SharedDrupalContext.
  *
  * @todo this work is currently tied to Drupal 7, because it runs some Drupal
  *       code, rather than using the DrupalDriver cores. This needs to be fixed,
@@ -9,18 +8,29 @@
  *       classes. At the very least, we should be able to get the Drupal version
  *       with $this->getDriver()->getDrupalVersion().
  *
- * @copyright (c) Copyright 2015 Palantir.net, Inc.
+ * @copyright 2015 Palantir.net, Inc.
  */
 
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 
+/**
+ * Behat context class with functionality that is shared across custom contexts.
+ *
+ * This class should not contain new Gherkin syntax.
+ *
+ * @todo can this class be abstract?
+ */
 class SharedDrupalContext extends RawDrupalContext
 {
 
+
     /**
      * Get node object by its title.
+     *
+     * @param string $contentType A Drupal content type machine name.
+     * @param string $title       The title of a Drupal node.
      *
      * @return stdclass
      *   The Drupal node object, if it exists.
@@ -34,20 +44,23 @@ class SharedDrupalContext extends RawDrupalContext
             ->propertyCondition('title', $title)
             ->execute();
 
-        if (!empty($entities['node']) && count($entities['node']) == 1) {
+        if (empty($entities['node']) === false && count($entities['node']) === 1) {
             $nid = key($entities['node']);
             return node_load($nid);
-        }
-        elseif (!empty($entities['node']) && count($entities['node']) > 1) {
+        } else if (empty($entities['node']) === false && count($entities['node']) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" node entitled "%s"', $contentType, $title));
-        }
-        else {
+        } else {
             throw new \Exception(sprintf('No "%s" node entitled "%s" exists', $contentType, $title));
         }
-    }
+
+    }//end findNodeByTitle()
+
 
     /**
      * Get node object by its title, creating the node if it does not yet exist.
+     *
+     * @param string $contentType A Drupal content type machine name.
+     * @param string $title       The title of a Drupal node.
      *
      * @return stdclass
      *   A Drupal node object.
@@ -59,19 +72,24 @@ class SharedDrupalContext extends RawDrupalContext
         }
         catch (\Exception $e) {
             $new_node = (object) array(
-              'title' => $title,
-              'type' => $contentType,
-              'body' => $this->getRandom()->string(255),
-            );
+                                  'title' => $title,
+                                  'type'  => $contentType,
+                                  'body'  => $this->getRandom()->string(255),
+                                 );
 
             $node = $this->nodeCreate($new_node);
         }
 
         return $node;
-    }
+
+    }//end getNodeByTitle()
+
 
     /**
      * Get a term object by name and vocabulary.
+     *
+     * @param string $termName   A Drupal taxonomy term name.
+     * @param string $vocabulary The machine name of a Drupal taxonomy vocabulary.
      *
      * @return stdclass
      *   The Drupal term object, if it exists.
@@ -85,20 +103,22 @@ class SharedDrupalContext extends RawDrupalContext
             ->propertyCondition('name', $termName)
             ->execute();
 
-        if (!empty($entities['taxonomy_term']) && count($entities['taxonomy_term']) == 1) {
+        if (empty($entities['taxonomy_term']) === false && count($entities['taxonomy_term']) === 1) {
             $id = key($entities['taxonomy_term']);
             return taxonomy_term_load($id);
-        }
-        elseif (!empty($entities['taxonomy_term']) && count($entities['taxonomy_term']) > 1) {
+        } else if (empty($entities['taxonomy_term']) === false && count($entities['taxonomy_term']) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" term entitled "%s"', $vocabulary, $termName));
-        }
-        else {
+        } else {
             throw new \Exception(sprintf('No "%s" term entitled "%s" exists', $vocabulary, $termName));
         }
-    }
+
+    }//end findTermByName()
+
 
     /**
      * Get a user object by name.
+     *
+     * @param string $userName The name of a Drupal user.
      *
      * @return stdclass
      *   The Drupal user object, if it exists.
@@ -111,26 +131,24 @@ class SharedDrupalContext extends RawDrupalContext
             ->propertyCondition('name', $userName)
             ->execute();
 
-        if (!empty($entities['user']) && count($entities['user']) == 1) {
+        if (empty($entities['user']) === false && count($entities['user']) === 1) {
             $id = key($entities['user']);
             return user_load($id);
-        }
-        elseif (!empty($entities['user']) && count($entities['user']) > 1) {
+        } else if (empty($entities['user']) === false && count($entities['user']) > 1) {
             throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
-        }
-        else {
+        } else {
             throw new \Exception(sprintf('No user named "%s" exists', $userName));
         }
-    }
+
+    }//end findUserByName()
 
 
     /**
      * Save a file.
      *
-     * @param stdclass $file
-     *   A simple object representing file data. Properties should be a simple
-     *   scalar values. Files may use either the 'uid' or 'author' fields to
-     *   attribute the file to a particular Drupal user.
+     * @param stdclass $file A simple object representing file data.
+     *   Properties should be scalar values, and files may use either the 'uid' or
+     *   'author' fields to attribute the file to a particular Drupal user.
      *
      * @return stdclass
      *   A Drupal file object.
@@ -138,26 +156,26 @@ class SharedDrupalContext extends RawDrupalContext
     public function fileCreate($file)
     {
         // Save the file.
-        $dest = file_build_uri(drupal_basename($file->uri));
+        $dest   = file_build_uri(drupal_basename($file->uri));
         $result = file_copy($file, $dest);
 
         // Stash the file object for later cleanup.
-        if (!empty($result->fid)) {
+        if (empty($result->fid) === false) {
             $this->files[] = $result;
-        }
-        else {
+        } else {
             throw new \Exception(sprintf('File "%s" could not be copied from "%s" to "%s".', $file->filename, $file->uri, $result->uri));
         }
 
         return $result;
-    }
+
+    }//end fileCreate()
+
 
     /**
      * Add required file properties.
      *
-     * @param stdclass $file
-     *   A simple object representing file data. The 'filename' property is
-     *   required.
+     * @param stdclass $file A simple object representing file data. The 'filename'
+     *   property is required.
      *
      * @return stdclass
      *   A file object with at least the filename, uri, uid, and status
@@ -165,33 +183,38 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function expandFile($file)
     {
-        if (empty($file->filename)) {
+        if (empty($file->filename) === true) {
             throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
         }
 
         // Set the URI to the path to the file within the MinkExtension's
         // files_path parameter.
-        $file->uri = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file->filename;
+        $file->uri = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file->filename;
 
         // Assign authorship if none exists and `author` is passed.
-        if (!isset($file->uid) && !empty($file->author) && ($account = user_load_by_name($file->author))) {
-            $file->uid = $account->uid;
+        if (isset($file->uid) === false && empty($file->author) === false) {
+            $account = user_load_by_name($file->author);
+            if ($account !== false) {
+                $file->uid = $account->uid;
+            }
         }
 
         // Add default values.
         $defaults = array(
-            'uid' => 0,
-            'status' => 1,
-        );
+                     'uid'    => 0,
+                     'status' => 1,
+                    );
 
         foreach ($defaults as $key => $default) {
-            if (!isset($file->$key)) {
+            if (isset($file->$key) === false) {
                 $file->$key = $default;
             }
         }
 
         return $file;
-    }
+
+    }//end expandFile()
+
 
     /**
      * Keep track of files so they can be cleaned up.
@@ -200,18 +223,23 @@ class SharedDrupalContext extends RawDrupalContext
      */
     protected $files = array();
 
+
     /**
      * Remove any created files.
      *
      * @AfterScenario
+     *
+     * @return void
      */
     public function cleanFiles()
     {
         foreach ($this->files as $file) {
-            file_delete($file, TRUE);
+            file_delete($file, true);
         }
 
         $this->files = array();
-    }
 
-}
+    }//end cleanFiles()
+
+
+}//end class

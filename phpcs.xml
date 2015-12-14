@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Standard">
+  <description>The coding standard for the Palantir Behat Extension project.</description>
+
+  <file>src</file>
+
+  <arg name="standard" value="vendor/leaphub/phpcs-symfony2-standard/leaphub/phpcs/Symfony2"/>
+  <arg name="extensions" value="php"/>
+  <arg name="warning-severity" value="0"/>
+
+  <rule ref="PHPCS">
+      <!-- Behat uses @Given, @When, and @Then annotations, which should appear
+           before the method parameter documentation. -->
+      <exclude name="Generic.Commenting.DocComment.ParamNotFirst"/>
+
+      <!-- I'm not sure how to use these tags. -->
+      <exclude name="PEAR.Commenting.ClassComment.MissingCategoryTag"/>
+      <exclude name="PEAR.Commenting.ClassComment.MissingPackageTag"/>
+      <exclude name="PEAR.Commenting.ClassComment.MissingAuthorTag"/>
+      <exclude name="PEAR.Commenting.ClassComment.MissingLicenseTag"/>
+      <exclude name="PEAR.Commenting.ClassComment.MissingLinkTag"/>
+
+      <exclude name="PEAR.Commenting.FileComment.MissingCategoryTag"/>
+      <exclude name="PEAR.Commenting.FileComment.MissingPackageTag"/>
+      <exclude name="PEAR.Commenting.FileComment.MissingAuthorTag"/>
+      <exclude name="PEAR.Commenting.FileComment.MissingLicenseTag"/>
+      <exclude name="PEAR.Commenting.FileComment.MissingLinkTag"/>
+  </rule>
+</ruleset>
