@@ -478,6 +478,50 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify a migrated entity.
+     *
+     * @Then the entity has source id :sourceId from (the )migration :migrationName
+     *
+     * @param int    $sourceId      The source id of a migrated record.
+     * @param string $migrationName The name of a Drupal migration (not the class name).
+     *
+     * @return void
+     */
+    public function assertEntityMigrationSourceId($sourceId, $migrationName)
+    {
+        if (module_exists('migrate') === false) {
+            throw new \Exception(sprintf('The "%s" module is not installed.', 'Migrate'));
+        }
+
+        $migration = \MigrationBase::getInstance($migrationName);
+        if (empty($migration) === true) {
+            throw new \Exception(sprintf('Could not find a migration named "%s".', $migrationName));
+        }
+
+        $destination = $migration->getDestination();
+        if (is_a($destination, 'MigrateDestinationEntity') === false) {
+            throw new \Exception(sprintf('Migration "%s" does not create entities.'));
+        }
+
+        if ($destination->getEntityType() !== $this->currentEntityType) {
+            throw new \Exception(sprintf('Migration "%s" does not create "%s" entities.'));
+        }
+
+        list($entityId, $revisionId, $bundle) = entity_extract_ids($this->currentEntityType, $this->currentEntity);
+        if ($destination->getBundle() !== $bundle) {
+            throw new \Exception(sprintf('Migration "%s" does not create "%s" entities of type "%s".', $migrationName, $bundle, $this->currentEntityType));
+        }
+
+        $map = $migration->getMap();
+        $row = $map->getRowByDestination(array($entityId));
+        if ($row['sourceid1'] !== $sourceId) {
+            throw new \Exception(sprintf('This entity does not have source id "%s" from migration "%s".', $sourceId, $migrationName));
+        }
+
+    }//end assertEntityMigrationSourceId()
+
+
+    /**
      * Output the contents of a field on the current entity.
      *
      * @Then I dump the contents of( field) :field
