@@ -121,12 +121,43 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityPropertyValue($property, $value)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        if ($wrapper->$property->value() !== $value) {
+        if (isset($this->currentEntity->$property) === false) {
+            throw new \Exception(sprintf('Entity has no property "%s"', $property));
+        }
+
+        if ((string) $this->currentEntity->$property !== $value) {
             throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
         }
 
     }//end assertEntityPropertyValue()
+
+
+    /**
+     * Verify that an entity author has a particular username.
+     *
+     * @Then the entity author should be :userName
+     *
+     * @param string $userName A Drupal user name.
+     *
+     * @return void
+     */
+    public function assertEntityAuthorName($userName)
+    {
+        $property = 'uid';
+        if (isset($this->currentEntity->$property) === false) {
+            throw new \Exception(sprintf('Entity has no property "%s"', $property));
+        }
+
+        $author = user_load($this->currentEntity->$property);
+        if (empty($author) === true) {
+            throw new \Exception(sprintf('Failed to load author user object id "%d".', $this->currentEntity->$property));
+        }
+
+        if ($author->name !== $userName) {
+            throw new \Exception(sprintf('Entity author name is "%s", not "%s".', $author->name, $userName));
+        }
+
+    }//end assertEntityAuthorName()
 
 
     /**
