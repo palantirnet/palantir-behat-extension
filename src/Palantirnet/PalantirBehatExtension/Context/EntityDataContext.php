@@ -91,6 +91,25 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify field and property values of a file entity.
+     *
+     * @When I examine the file :fileName
+     *
+     * @param string $fileName The name of a Drupal managed file.
+     *
+     * @return void
+     */
+    public function assertFileByName($fileName)
+    {
+        $file = $this->findFileByName($fileName);
+
+        $this->currentEntity     = $file;
+        $this->currentEntityType = 'file';
+
+    }//end assertFileByName()
+
+
+    /**
      * Verify that an entity property is equal to a particular value.
      *
      * @Then entity property :property should be :value
