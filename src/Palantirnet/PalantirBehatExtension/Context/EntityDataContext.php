@@ -160,7 +160,7 @@ class EntityDataContext extends SharedDrupalContext
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
         $field_value = $wrapper->$field->value();
-        if (is_array($field_value) === true) {
+        if (is_array($field_value) === false) {
             $field_value = array($field_value);
         }
 
