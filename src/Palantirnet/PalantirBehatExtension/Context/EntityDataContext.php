@@ -346,24 +346,20 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueEntityReference($field, $value)
     {
-        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        $field_value = $wrapper->$field->value();
-
-        // Use the entityreference selection handler to get the label for each
-        // referenced entity.
         $field_info = field_info_field($field);
-        $handler    = entityreference_get_selection_handler($field_info);
+        $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
 
-        if (empty($field_value) === false) {
-            foreach ($field_value as $entity) {
-                $label = $handler->getLabel($entity);
+        if (empty($items) === false) {
+            foreach ($items as $item) {
+                $entities = entity_load($field_info['settings']['target_type'], $item);
+                $label = entity_label($field_info['settings']['target_type'], current($entities));
                 if ($label === $value) {
                     return;
                 }
             }
         }
 
-        throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s"', $field, $value));
+        throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s" (has "%s" instead).', $field, $value, $label));
 
     }//end assertEntityFieldValueEntityReference()
 
