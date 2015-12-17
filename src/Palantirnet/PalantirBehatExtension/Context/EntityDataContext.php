@@ -347,12 +347,12 @@ class EntityDataContext extends SharedDrupalContext
     public function assertEntityFieldValueEntityReference($field, $value)
     {
         $field_info = field_info_field($field);
-        $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
+        $items      = field_get_items($this->currentEntityType, $this->currentEntity, $field);
 
         if (empty($items) === false) {
             foreach ($items as $item) {
                 $entities = entity_load($field_info['settings']['target_type'], $item);
-                $label = entity_label($field_info['settings']['target_type'], current($entities));
+                $label    = entity_label($field_info['settings']['target_type'], current($entities));
                 if ($label === $value) {
                     return;
                 }
