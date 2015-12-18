@@ -240,6 +240,10 @@ class EntityDataContext extends SharedDrupalContext
     {
         $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
 
+        if ($items === false) {
+            throw new \Exception(sprintf('No field data available for "%s".', $field));
+        }
+
         foreach ($items as $item) {
             if (strpos($item['value'], $value) !== false) {
                 return;
