@@ -238,26 +238,10 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueTextLong($field, $value)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
 
-        $field_value = $wrapper->$field->value();
-
-        // Note that text field values may be:
-        // - a string
-        // - an array('value' => '...', 'format' => '...', 'safe_value' => '...')
-        // - an array of array('value' => '...', 'format' => '...', 'safe_value' => '...')
-        // ... which makes it somewhat hard to tell single values from multiple
-        // values.
-        if (is_string($field_value) === true) {
-            $field_value = array(array('value' => $field_value));
-        } else if (is_array($field_value) === true && isset($field_value['value']) === true) {
-            $field_value = array($field_value);
-        } else if (is_array($field_value) === false) {
-            $field_value = array();
-        }
-
-        foreach ($field_value as $f) {
-            if (strpos($f['value'], $value) !== false) {
+        foreach ($items as $item) {
+            if (strpos($item['value'], $value) !== false) {
                 return;
             }
         }
