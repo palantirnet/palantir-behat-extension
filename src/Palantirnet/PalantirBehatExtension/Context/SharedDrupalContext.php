@@ -155,9 +155,9 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function fileCreate($file)
     {
-        // Save the file.
+        // Save the file and overwrite if it already exists.
         $dest   = file_build_uri(drupal_basename($file->uri));
-        $result = file_copy($file, $dest);
+        $result = file_copy($file, $dest, FILE_EXISTS_REPLACE);
 
         // Stash the file object for later cleanup.
         if (empty($result->fid) === false) {
