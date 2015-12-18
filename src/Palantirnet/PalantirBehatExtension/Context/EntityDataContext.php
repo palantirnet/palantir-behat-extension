@@ -91,6 +91,25 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify field and property values of a file entity.
+     *
+     * @When I examine the file :fileName
+     *
+     * @param string $fileName The name of a Drupal managed file.
+     *
+     * @return void
+     */
+    public function assertFileByName($fileName)
+    {
+        $file = $this->findFileByName($fileName);
+
+        $this->currentEntity     = $file;
+        $this->currentEntityType = 'file';
+
+    }//end assertFileByName()
+
+
+    /**
      * Verify that an entity property is equal to a particular value.
      *
      * @Then entity property :property should be :value
@@ -102,12 +121,43 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityPropertyValue($property, $value)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        if ($wrapper->$property->value() !== $value) {
+        if (isset($this->currentEntity->$property) === false) {
+            throw new \Exception(sprintf('Entity has no property "%s"', $property));
+        }
+
+        if ((string) $this->currentEntity->$property !== $value) {
             throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
         }
 
     }//end assertEntityPropertyValue()
+
+
+    /**
+     * Verify that an entity author has a particular username.
+     *
+     * @Then the entity author should be :userName
+     *
+     * @param string $userName A Drupal user name.
+     *
+     * @return void
+     */
+    public function assertEntityAuthorName($userName)
+    {
+        $property = 'uid';
+        if (isset($this->currentEntity->$property) === false) {
+            throw new \Exception(sprintf('Entity has no property "%s"', $property));
+        }
+
+        $author = user_load($this->currentEntity->$property);
+        if (empty($author) === true) {
+            throw new \Exception(sprintf('Failed to load author user object id "%d".', $this->currentEntity->$property));
+        }
+
+        if ($author->name !== $userName) {
+            throw new \Exception(sprintf('Entity author name is "%s", not "%s".', $author->name, $userName));
+        }
+
+    }//end assertEntityAuthorName()
 
 
     /**
@@ -421,6 +471,50 @@ class EntityDataContext extends SharedDrupalContext
         throw new \Exception(sprintf('Field "%s" does not contain datetime "%s" (%s)', $field, strtotime($value), $value));
 
     }//end assertEntityFieldValueDatetime()
+
+
+    /**
+     * Verify a migrated entity.
+     *
+     * @Then the entity has source id :sourceId from (the )migration :migrationName
+     *
+     * @param int    $sourceId      The source id of a migrated record.
+     * @param string $migrationName The name of a Drupal migration (not the class name).
+     *
+     * @return void
+     */
+    public function assertEntityMigrationSourceId($sourceId, $migrationName)
+    {
+        if (module_exists('migrate') === false) {
+            throw new \Exception(sprintf('The "%s" module is not installed.', 'Migrate'));
+        }
+
+        $migration = \MigrationBase::getInstance($migrationName);
+        if (empty($migration) === true) {
+            throw new \Exception(sprintf('Could not find a migration named "%s".', $migrationName));
+        }
+
+        $destination = $migration->getDestination();
+        if (is_a($destination, 'MigrateDestinationEntity') === false) {
+            throw new \Exception(sprintf('Migration "%s" does not create entities.'));
+        }
+
+        if ($destination->getEntityType() !== $this->currentEntityType) {
+            throw new \Exception(sprintf('Migration "%s" does not create "%s" entities.'));
+        }
+
+        list($entityId, $revisionId, $bundle) = entity_extract_ids($this->currentEntityType, $this->currentEntity);
+        if ($destination->getBundle() !== $bundle) {
+            throw new \Exception(sprintf('Migration "%s" does not create "%s" entities of type "%s".', $migrationName, $bundle, $this->currentEntityType));
+        }
+
+        $map = $migration->getMap();
+        $row = $map->getRowByDestination(array($entityId));
+        if ($row['sourceid1'] !== $sourceId) {
+            throw new \Exception(sprintf('This entity does not have source id "%s" from migration "%s".', $sourceId, $migrationName));
+        }
+
+    }//end assertEntityMigrationSourceId()
 
 
     /**

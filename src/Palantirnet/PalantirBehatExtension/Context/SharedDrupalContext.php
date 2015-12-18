@@ -144,6 +144,34 @@ class SharedDrupalContext extends RawDrupalContext
 
 
     /**
+     * Get a file object by name.
+     *
+     * @param string $fileName The name of a Drupal managed file.
+     *
+     * @return stdclass
+     *   The Drupal file object, if it exists.
+     */
+    public function findFileByName($fileName)
+    {
+        $query = new \EntityFieldQuery();
+
+        $entities = $query->entityCondition('entity_type', 'file')
+            ->propertyCondition('filename', $fileName)
+            ->execute();
+
+        if (empty($entities['file']) === false && count($entities['file']) === 1) {
+            $id = key($entities['file']);
+            return file_load($id);
+        } else if (empty($entities['file']) === false && count($entities['file']) > 1) {
+            throw new \Exception(sprintf('Found more than one file named "%s"', $fileName));
+        } else {
+            throw new \Exception(sprintf('No file named "%s" exists', $fileName));
+        }
+
+    }//end findFileByName()
+
+
+    /**
      * Save a file.
      *
      * @param stdclass $file A simple object representing file data.
