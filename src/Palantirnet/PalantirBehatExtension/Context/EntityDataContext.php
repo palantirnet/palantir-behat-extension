@@ -301,6 +301,23 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Test an image field for a Drupal stream wrapper URI.
+     *
+     * @param string $field A Drupal field name.
+     * @param mixed  $value The value to look for.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueImage($field, $value)
+    {
+        $this->assertEntityFieldValueFile($field, $value);
+
+    }//end assertEntityFieldValueImage()
+
+
+    /**
      * Test a taxonomy term reference field for a term name.
      *
      * @param string $field A Drupal field name.
