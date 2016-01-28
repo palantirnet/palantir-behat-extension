@@ -155,8 +155,7 @@ class EntityDataContext extends SharedDrupalContext
         $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_info['type'])));
         if (method_exists($this, $method_name) === true) {
             return $this->$method_name($field, $value);
-        }
-        else {
+        } else {
             return $this->assertEntityFieldValueDefault($field, $value);
         }
 
@@ -188,6 +187,14 @@ class EntityDataContext extends SharedDrupalContext
     }//end assertNotEntityFieldValue()
 
 
+    /**
+     * Default test for field values; handles many simple field types.
+     *
+     * @param string $field A Drupal field name.
+     * @param mixed  $value The value to look for.
+     *
+     * @return void
+     */
     public function assertEntityFieldValueDefault($field, $value)
     {
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
@@ -205,7 +212,15 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify that a subfield of a multifield contains a value.
+     *
      * @Then multifield :field subfield :subfield should contain :value
+     *
+     * @param string $field    The Drupal field name of a multifield.
+     * @param string $subfield The Drupal field name of a subfield of the multifield.
+     * @param mixed  $value    The value to look for.
+     *
+     * @return void
      */
     public function assertEntityMultifieldSubfieldValue($field, $subfield, $value)
     {
@@ -240,7 +255,7 @@ class EntityDataContext extends SharedDrupalContext
         $this->currentEntity     = $parentEntity;
         $this->currentEntityType = $parentEntityType;
 
-        if (!$found) {
+        if (false === $found) {
             throw new \Exception(sprintf('Multifeld "%s" does not have a subfield "%s" containing "%s"', $field, $subfield, $value));
         }
 
@@ -472,51 +487,6 @@ class EntityDataContext extends SharedDrupalContext
         throw new \Exception(sprintf('Field "%s" does not contain datetime "%s" (%s)', $field, strtotime($value), $value));
 
     }//end assertEntityFieldValueDatetime()
-
-
-    public function assertEntityFieldValueMultifield($field, $value)
-    {
-        $parentEntity     = $this->currentEntity;
-        $parentEntityType = $this->currentEntityType;
-
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-
-        if (is_array($field_value) === false) {
-            $field_value = array($field_value);
-        }
-
-        $multifieldEntity = current($field_value);
-        $found            = false;
-
-        while ($multifieldEntity && !$found) {
-            $this->currentEntity     = $multifieldEntity;
-            $this->currentEntityType = 'multifield';
-
-            foreach ($multifieldEntity as $k => $v) {
-                if (!$found && strpos($k, 'field_') === 0) {
-                    try {
-                        $this->assertEntityFieldValue($k, $value);
-                        $found = true;
-                    }
-                    catch (\Exception $e) {
-                        $found = false;
-                    }
-                }
-            }
-
-            $multifieldEntity = next($field_value);
-        }
-
-        $this->currentEntity     = $parentEntity;
-        $this->currentEntityType = $parentEntityType;
-
-        if (!$found) {
-            throw new \Exception(sprintf('Multifeld "%s" does not have any subfield containing "%s"', $field, $value));
-        }
-
-    }//end assertEntityFieldValueMultifield()
 
 
     /**
