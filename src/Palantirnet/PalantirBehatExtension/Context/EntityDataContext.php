@@ -156,16 +156,8 @@ class EntityDataContext extends SharedDrupalContext
         if (method_exists($this, $method_name) === true) {
             return $this->$method_name($field, $value);
         }
-
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-        if (is_array($field_value) === false) {
-            $field_value = array($field_value);
-        }
-
-        if (in_array($value, $field_value) === false) {
-            throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
+        else {
+            return $this->assertEntityFieldValueDefault($field, $value);
         }
 
     }//end assertEntityFieldValue()
@@ -195,6 +187,62 @@ class EntityDataContext extends SharedDrupalContext
 
     }//end assertNotEntityFieldValue()
 
+
+    public function assertEntityFieldValueDefault($field, $value)
+    {
+        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+
+        $field_value = $wrapper->$field->value();
+        if (is_array($field_value) === false) {
+            $field_value = array($field_value);
+        }
+
+        if (in_array($value, $field_value) === false) {
+            throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
+        }
+    }
+
+    /**
+     * @Then multifield :field subfield :subfield should contain :value
+     */
+    public function assertEntityMultifieldSubfieldValue($field, $subfield, $value)
+    {
+        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        $field_value = $wrapper->$field->value();
+
+        if (is_array($field_value) === false) {
+            $field_value = array($field_value);
+        }
+
+
+        $parentEntity = $this->currentEntity;
+        $parentEntityType = $this->currentEntityType;
+
+        $multifieldEntity = current($field_value);
+        $found = FALSE;
+
+        while ($multifieldEntity && !$found) {
+            $this->currentEntity = $multifieldEntity;
+            $this->currentEntityType = 'multifield';
+
+            try {
+                $this->assertEntityFieldValue($subfield, $value);
+                $found = TRUE;
+            }
+            catch (\Exception $e) {
+                $found = FALSE;
+            }
+
+            $multifieldEntity = next($field_value);
+        }
+
+        $this->currentEntity = $parentEntity;
+        $this->currentEntityType = $parentEntityType;
+
+        if (!$found) {
+            throw new \Exception(sprintf('Multifeld "%s" does not have a subfield "%s" containing "%s"', $field, $subfield, $value));
+        }
+    }
 
     /**
      * Test a link field for its URL value.
@@ -421,6 +469,49 @@ class EntityDataContext extends SharedDrupalContext
         throw new \Exception(sprintf('Field "%s" does not contain datetime "%s" (%s)', $field, strtotime($value), $value));
 
     }//end assertEntityFieldValueDatetime()
+
+    public function assertEntityFieldValueMultifield($field, $value)
+    {
+        $parentEntity = $this->currentEntity;
+        $parentEntityType = $this->currentEntityType;
+
+        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+
+        $field_value = $wrapper->$field->value();
+
+        if (is_array($field_value) === false) {
+            $field_value = array($field_value);
+        }
+
+        $multifieldEntity = current($field_value);
+        $found = FALSE;
+
+        while ($multifieldEntity && !$found) {
+            $this->currentEntity = $multifieldEntity;
+            $this->currentEntityType = 'multifield';
+
+            foreach ($multifieldEntity as $k => $v) {
+                if (!$found && strpos($k, 'field_') === 0) {
+                    try {
+                        $this->assertEntityFieldValue($k, $value);
+                        $found = TRUE;
+                    }
+                    catch (\Exception $e) {
+                        $found = FALSE;
+                    }
+                }
+            }
+
+            $multifieldEntity = next($field_value);
+        }
+
+        $this->currentEntity = $parentEntity;
+        $this->currentEntityType = $parentEntityType;
+
+        if (!$found) {
+            throw new \Exception(sprintf('Multifeld "%s" does not have any subfield containing "%s"', $field, $value));
+        }
+    }
 
 
     /**
