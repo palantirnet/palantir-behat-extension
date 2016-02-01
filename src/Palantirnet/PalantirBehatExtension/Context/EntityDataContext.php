@@ -341,13 +341,16 @@ class EntityDataContext extends SharedDrupalContext
             foreach ($items as $item) {
                 $entities = entity_load($field_info['settings']['target_type'], $item);
                 $label    = entity_label($field_info['settings']['target_type'], current($entities));
+
                 if ($label === $value) {
                     return;
                 }
             }
+
+            throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s" (has "%s" instead).', $field, $value, $label));
         }
 
-        throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s" (has "%s" instead).', $field, $value, $label));
+        throw new \Exception(sprintf('Field "%s" is empty.', $field));
 
     }//end assertEntityFieldValueEntityReference()
 
