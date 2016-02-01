@@ -205,17 +205,8 @@ class EntityDataContext extends SharedDrupalContext
         $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_info['type'])));
         if (method_exists($this, $method_name) === true) {
             return $this->$method_name($field, $value);
-        }
-
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-        if (is_array($field_value) === false) {
-            $field_value = array($field_value);
-        }
-
-        if (in_array($value, $field_value) === false) {
-            throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
+        } else {
+            return $this->assertEntityFieldValueDefault($field, $value);
         }
 
     }//end assertEntityFieldValue()
@@ -244,6 +235,81 @@ class EntityDataContext extends SharedDrupalContext
         throw new \Exception(sprintf('Field "%s" contains "%s"', $field, $value));
 
     }//end assertNotEntityFieldValue()
+
+
+    /**
+     * Default test for field values; handles many simple field types.
+     *
+     * @param string $field A Drupal field name.
+     * @param mixed  $value The value to look for.
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueDefault($field, $value)
+    {
+        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+
+        $field_value = $wrapper->$field->value();
+        if (is_array($field_value) === false) {
+            $field_value = array($field_value);
+        }
+
+        if (in_array($value, $field_value) === false) {
+            throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
+        }
+
+    }//end assertEntityFieldValueDefault()
+
+
+    /**
+     * Verify that a subfield of a multifield contains a value.
+     *
+     * @Then multifield :field subfield :subfield should contain :value
+     *
+     * @param string $field    The Drupal field name of a multifield.
+     * @param string $subfield The Drupal field name of a subfield of the multifield.
+     * @param mixed  $value    The value to look for.
+     *
+     * @return void
+     */
+    public function assertEntityMultifieldSubfieldValue($field, $subfield, $value)
+    {
+        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        $field_value = $wrapper->$field->value();
+
+        if (is_array($field_value) === false) {
+            $field_value = array($field_value);
+        }
+
+        $parentEntity     = $this->currentEntity;
+        $parentEntityType = $this->currentEntityType;
+
+        $multifieldEntity = current($field_value);
+        $found            = false;
+
+        while ($multifieldEntity && !$found) {
+            $this->currentEntity     = $multifieldEntity;
+            $this->currentEntityType = 'multifield';
+
+            try {
+                $this->assertEntityFieldValue($subfield, $value);
+                $found = true;
+            }
+            catch (\Exception $e) {
+                $found = false;
+            }
+
+            $multifieldEntity = next($field_value);
+        }
+
+        $this->currentEntity     = $parentEntity;
+        $this->currentEntityType = $parentEntityType;
+
+        if (false === $found) {
+            throw new \Exception(sprintf('Multifeld "%s" does not have a subfield "%s" containing "%s"', $field, $subfield, $value));
+        }
+
+    }//end assertEntityMultifieldSubfieldValue()
 
 
     /**
