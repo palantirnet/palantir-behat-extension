@@ -41,7 +41,7 @@ class DrupalSetupContext extends SharedDrupalContext
      */
     public function assertModuleInstalled($module)
     {
-        if (module_exists('features') === false) {
+        if (module_exists($module) === false) {
             throw new \Exception(sprintf('The "%s" module is not installed.', $module));
         }
 
