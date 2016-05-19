@@ -10,6 +10,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalDriverManager;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context class with steps to examine entity property and field data.
@@ -43,6 +44,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNodeByTitle($contentType, $title)
     {
+        throw new NotUpdatedException();
+
         $node = $this->findNodeByTitle($contentType, $title);
 
         $this->currentEntity     = $node;
@@ -63,6 +66,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertTermByName($termName, $vocabulary)
     {
+        throw new NotUpdatedException();
+
         $term = $this->findTermByName($termName, $vocabulary);
 
         $this->currentEntity     = $term;
@@ -82,6 +87,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertUserByName($userName)
     {
+        throw new NotUpdatedException();
+
         $account = $this->findUserByName($userName);
 
         $this->currentEntity     = $account;
@@ -102,6 +109,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityPropertyValue($property, $value)
     {
+        throw new NotUpdatedException();
+
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         if ($wrapper->$property->value() !== $value) {
             throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
@@ -121,6 +130,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertUserHasRoles($role)
     {
+        throw new NotUpdatedException();
+
         $this->assertEntityIsUser();
 
         $roles = $this->getRoles($role);
@@ -141,6 +152,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotUserHasRoles($role)
     {
+        throw new NotUpdatedException();
+
         $this->assertEntityIsUser();
 
         $roles = $this->getRoles($role);
@@ -157,6 +170,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityIsUser()
     {
+        throw new NotUpdatedException();
+
         if ('user' !== $this->currentEntityType) {
             throw new \Exception(sprintf('Entity is not a user.'));
         }
@@ -174,6 +189,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertUserRoles($account, $roles)
     {
+        throw new NotUpdatedException();
+
         foreach ($roles as $role) {
             if (false === user_has_role($role->rid, $account)) {
                 throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->name, $role->name));
@@ -193,6 +210,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotUserRoles($account, $roles)
     {
+        throw new NotUpdatedException();
+
         foreach ($roles as $role) {
             if (true === user_has_role($role->rid, $account)) {
                 throw new \Exception(sprintf('User "%s" has role "%s".', $account->name, $role->name));
@@ -211,6 +230,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function getRoles($roles)
     {
+        throw new NotUpdatedException();
+
         $role_objects = array();
 
         $role_names = array_map('trim', explode(',', $roles));
@@ -240,6 +261,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotEntityPropertyValue($property, $value)
     {
+        throw new NotUpdatedException();
+
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         if ($wrapper->$property->value() === $value) {
             throw new \Exception(sprintf('Property "%s" is "%s"', $property, $value));
@@ -260,6 +283,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValue($field, $value)
     {
+        throw new NotUpdatedException();
+
         if (empty($field) === true || empty($value) === true) {
             return;
         }
@@ -301,6 +326,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotEntityFieldValue($field, $value)
     {
+        throw new NotUpdatedException();
+
         try {
             $this->assertEntityFieldValue($field, $value);
         }
@@ -326,6 +353,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueLinkField($field, $value)
     {
+        throw new NotUpdatedException();
+
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
         $field_value = $wrapper->$field->value();
@@ -356,6 +385,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueTextLong($field, $value)
     {
+        throw new NotUpdatedException();
+
         $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
 
         if ($items === false) {
@@ -385,6 +416,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueFile($field, $value)
     {
+        throw new NotUpdatedException();
+
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
         $field_value = $wrapper->$field->value();
@@ -418,6 +451,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueImage($field, $value)
     {
+        throw new NotUpdatedException();
+
         $this->assertEntityFieldValueFile($field, $value);
 
     }//end assertEntityFieldValueImage()
@@ -435,6 +470,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueTaxonomyTermReference($field, $value)
     {
+        throw new NotUpdatedException();
+
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
         $field_value = $wrapper->$field->value();
@@ -469,6 +506,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueEntityReference($field, $value)
     {
+        throw new NotUpdatedException();
+
         $field_info = field_info_field($field);
         $items      = field_get_items($this->currentEntityType, $this->currentEntity, $field);
 
@@ -511,6 +550,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueDatetime($field, $value)
     {
+        throw new NotUpdatedException();
+
         $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();
 
@@ -560,6 +601,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function dumpField($field)
     {
+        throw new NotUpdatedException();
+
         $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();
         print_r($field_value);

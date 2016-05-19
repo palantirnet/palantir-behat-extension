@@ -8,6 +8,7 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context for use with Workbench Moderation.
@@ -36,6 +37,8 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
      */
     public function disableWorkbenchModeration()
     {
+        throw new NotUpdatedException();
+
         $this->disableWorkbenchModeration = true;
 
     }//end disableWorkbenchModeration()
@@ -55,6 +58,8 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
      */
     public function prepareWorkbenchModerationNode(BeforeNodeCreateScope $scope)
     {
+        throw new NotUpdatedException();
+
         if ($this->disableWorkbenchModeration === true) {
             $node         = $scope->getEntity();
             $node->status = 1;

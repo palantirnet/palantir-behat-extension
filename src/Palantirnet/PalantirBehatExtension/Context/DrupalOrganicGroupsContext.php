@@ -12,6 +12,7 @@ use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\DrupalDriverManager;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context with step definitions for testing Organic Groups in Drupal.
@@ -45,6 +46,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function gatherContexts(BeforeScenarioScope $scope)
     {
+        throw new NotUpdatedException();
+
         $environment         = $scope->getEnvironment();
         $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
 
@@ -62,6 +65,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function checkDependencies(BeforeScenarioScope $scope)
     {
+        throw new NotUpdatedException();
+
         if (module_exists('og') === false) {
             throw new \Exception('The Organic Groups module is not installed.');
         }
@@ -80,6 +85,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     protected function getAccount()
     {
+        throw new NotUpdatedException();
+
         if (empty($this->drupalContext->user) === false) {
             $account = user_load($this->drupalContext->user->uid);
         } else {
@@ -107,6 +114,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertGroupRole($group_role, $group_node_type, $group_node_title)
     {
+        throw new NotUpdatedException();
+
         $this->drupalContext->assertAuthenticatedByRole('authenticated user');
 
         $group_node = $this->getNodeByTitle($group_node_type, $group_node_title);
@@ -152,6 +161,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertHasGroupRole($group_role, $group_node_type, $group_node_title)
     {
+        throw new NotUpdatedException();
+
         $group_node = $this->findNodeByTitle($group_node_type, $group_node_title);
 
         $user_og_roles = og_get_user_roles('node', $group_node->nid, $this->getAccount()->uid);
@@ -177,6 +188,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertNodeIsGroup($type, $title)
     {
+        throw new NotUpdatedException();
+
         $node = $this->findNodeByTitle($type, $title);
 
         if (og_is_group('node', $node->nid) === false) {
@@ -201,6 +214,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertCreateGroupContent($type, $group_type, $group_title)
     {
+        throw new NotUpdatedException();
+
         $this->assertGroupContent($type, $group_type, $group_title);
 
         $group = $this->assertNodeIsGroup($group_type, $group_title);
@@ -227,6 +242,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertNotCreateGroupContent($type, $group_type, $group_title)
     {
+        throw new NotUpdatedException();
+
         $this->assertGroupContent($type, $group_type, $group_title);
 
         $group = $this->assertNodeIsGroup($group_type, $group_title);
@@ -250,6 +267,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertEditGroupContent($type, $group_type, $group_title)
     {
+        throw new NotUpdatedException();
+
         $this->assertGroupContent($type, $group_type, $group_title);
 
         $group = $this->assertNodeIsGroup($group_type, $group_title);
@@ -273,6 +292,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertNotEditGroupContent($type, $group_type, $group_title)
     {
+        throw new NotUpdatedException();
+
         $this->assertGroupContent($type, $group_type, $group_title);
 
         $group = $this->assertNodeIsGroup($group_type, $group_title);
@@ -297,6 +318,8 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     protected function assertGroupContent($type, $group_type, $group_title)
     {
+        throw new NotUpdatedException();
+
         if (og_is_group_content_type('node', $type) === false) {
             throw new \Exception(sprintf('Content of type "%s" can not be added to any group because it is not a group content type.'));
         }

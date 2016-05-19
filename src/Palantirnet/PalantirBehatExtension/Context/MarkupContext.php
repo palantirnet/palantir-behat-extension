@@ -8,6 +8,7 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\MarkupContext as DrupalExtensionMarkupContext;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context class with functionality that is shared across custom contexts.
@@ -27,6 +28,8 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function dumpRegion($region)
     {
+        throw new NotUpdatedException();
+
         print $this->getRegion($region)->getHTML()."\r\n";
 
     }//end dumpRegion()
@@ -41,6 +44,8 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function dumpUrl()
     {
+        throw new NotUpdatedException();
+
         print $this->getSession()->getCurrentUrl()."\r\n";
 
     }//end dumpUrl()
@@ -59,6 +64,8 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertRegionElementText($text, $tag, $region)
     {
+        throw new NotUpdatedException();
+
         $regionObj = $this->getRegion($region);
         $results   = $regionObj->findAll('css', $tag);
 
@@ -91,6 +98,8 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertNotRegionElementText($text, $tag, $region)
     {
+        throw new NotUpdatedException();
+
         $regionObj = $this->getRegion($region);
         $results   = $regionObj->findAll('css', $tag);
 
@@ -121,6 +130,8 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertFieldByLabel($label)
     {
+        throw new NotUpdatedException();
+
         $page  = $this->getSession()->getPage();
         $field = $page->findField($label);
 
@@ -142,6 +153,8 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertNotFieldByLabel($label)
     {
+        throw new NotUpdatedException();
+
         try {
             $this->assertFieldByLabel($label);
         }
@@ -165,6 +178,8 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertFieldsetByLabel($label)
     {
+        throw new NotUpdatedException();
+
         $page     = $this->getSession()->getPage();
         $legend   = $this->getSession()->getSelectorsHandler()->xpathLiteral($label);
         $fieldset = $page->find('named', array('fieldset', $legend));

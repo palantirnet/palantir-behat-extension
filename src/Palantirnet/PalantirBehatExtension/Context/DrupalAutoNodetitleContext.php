@@ -8,6 +8,7 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Hook\Scope\BeforeNodeCreateScope;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context for use with Auto Nodetitle.
@@ -37,6 +38,8 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
      */
     public function disableAutoNodetitle()
     {
+        throw new NotUpdatedException();
+
         $this->disableAutoNodetitle = true;
 
     }//end disableAutoNodetitle()
@@ -56,6 +59,8 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
      */
     public function prepareAutoNodetitleNode(BeforeNodeCreateScope $scope)
     {
+        throw new NotUpdatedException();
+
         if ($this->disableAutoNodetitle === true) {
             $node = $scope->getEntity();
             $node->auto_nodetitle_applied = true;

@@ -13,6 +13,7 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\DrupalDriverManager;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context with steps for testing Drupal commenting functionality.
@@ -62,6 +63,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function gatherContexts(BeforeScenarioScope $scope)
     {
+        throw new NotUpdatedException();
+
         $environment         = $scope->getEnvironment();
         $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
 
@@ -79,6 +82,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function checkDependencies(BeforeScenarioScope $scope)
     {
+        throw new NotUpdatedException();
+
         if (module_exists('comment') === false) {
             throw new \Exception('The Comment module is not available.');
         }
@@ -95,6 +100,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function cleanComments()
     {
+        throw new NotUpdatedException();
+
         // Remove any comments that were created.
         foreach ($this->comments as $comment) {
             comment_delete($comment->cid);
@@ -120,6 +127,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function getAccount()
     {
+        throw new NotUpdatedException();
+
         if (empty($this->drupalContext->user) === false) {
             $account = user_load($this->drupalContext->user->uid);
         } else {
@@ -145,6 +154,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function createComment($comment)
     {
+        throw new NotUpdatedException();
+
         // Assign authorship if none exists and `author` is passed.
         if (isset($comment->uid) === false && empty($comment->author) === false) {
             $account = user_load_by_name($comment->author);
@@ -200,6 +211,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function expandEntityFields($entity_type, \stdClass $entity)
     {
+        throw new NotUpdatedException();
+
         $field_types = $this->getDriver()->getCore()->getEntityFieldTypes($entity_type);
 
         foreach ($field_types as $field_name => $type) {
@@ -225,6 +238,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function assertCommentsAreOpen($type, $title)
     {
+        throw new NotUpdatedException();
+
         $node = $this->getNodeByTitle($type, $title);
         if ((int) $node->comment !== COMMENT_NODE_OPEN) {
             throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
@@ -246,6 +261,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     function createCommentOnContent($text, $type, $title)
     {
+        throw new NotUpdatedException();
+
         $this->assertCommentsAreOpen($type, $title);
 
         $node = $this->getNodeByTitle($type, $title);
@@ -281,6 +298,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function createCommentsOnContent($type, $title, TableNode $commentsTable)
     {
+        throw new NotUpdatedException();
+
         $this->assertCommentsAreOpen($type, $title);
 
         $node = $this->getNodeByTitle($type, $title);

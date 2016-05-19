@@ -14,6 +14,7 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\RawDrupalContext;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context class with functionality that is shared across custom contexts.
@@ -37,6 +38,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findNodeByTitle($contentType, $title)
     {
+        throw new NotUpdatedException();
+
         $query = new \EntityFieldQuery();
 
         $entities = $query->entityCondition('entity_type', 'node')
@@ -67,6 +70,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     protected function getNodeByTitle($contentType, $title)
     {
+        throw new NotUpdatedException();
+
         try {
             $node = $this->findNodeByTitle($contentType, $title);
         }
@@ -96,6 +101,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findTermByName($termName, $vocabulary)
     {
+        throw new NotUpdatedException();
+
         $query = new \EntityFieldQuery();
 
         $entities = $query->entityCondition('entity_type', 'taxonomy_term')
@@ -125,6 +132,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findUserByName($userName)
     {
+        throw new NotUpdatedException();
+
         $query = new \EntityFieldQuery();
 
         $entities = $query->entityCondition('entity_type', 'user')
@@ -155,6 +164,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function fileCreate($file)
     {
+        throw new NotUpdatedException();
+
         // Save the file and overwrite if it already exists.
         $dest   = file_build_uri(drupal_basename($file->uri));
         $result = file_copy($file, $dest, FILE_EXISTS_REPLACE);
@@ -183,6 +194,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function expandFile($file)
     {
+        throw new NotUpdatedException();
+
         if (empty($file->filename) === true) {
             throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
         }
@@ -233,6 +246,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function cleanFiles()
     {
+        throw new NotUpdatedException();
+
         foreach ($this->files as $file) {
             file_delete($file, true);
         }
