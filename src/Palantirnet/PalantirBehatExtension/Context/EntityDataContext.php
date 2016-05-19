@@ -111,6 +111,124 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify that a user has one or more roles.
+     *
+     * @Then the user should have the role(s) :role
+     *
+     * @param string $role One or more role names, separated by commas.
+     *
+     * @return void
+     */
+    public function assertUserHasRoles($role)
+    {
+        $this->assertEntityIsUser();
+
+        $roles = $this->getRoles($role);
+
+        $this->assertUserRoles($this->currentEntity, $roles);
+
+    }//end assertUserHasRoles()
+
+
+    /**
+     * Verify that a user does not have one or more roles.
+     *
+     * @Then the user should not have the role(s) :role
+     *
+     * @param string $role One or more role names, separated by commas.
+     *
+     * @return void
+     */
+    public function assertNotUserHasRoles($role)
+    {
+        $this->assertEntityIsUser();
+
+        $roles = $this->getRoles($role);
+
+        $this->assertNotUserRoles($this->currentEntity, $roles);
+
+    }//end assertNotUserHasRoles()
+
+
+    /**
+     * Verify that the current entity is a user.
+     *
+     * @return void
+     */
+    public function assertEntityIsUser()
+    {
+        if ('user' !== $this->currentEntityType) {
+            throw new \Exception(sprintf('Entity is not a user.'));
+        }
+
+    }//end assertEntityIsUser()
+
+
+    /**
+     * Verify that a user account has a set of roles.
+     *
+     * @param stdclass $account A Drupal user account object.
+     * @param array    $roles   An array of Drupal role objects.
+     *
+     * @return void
+     */
+    public function assertUserRoles($account, $roles)
+    {
+        foreach ($roles as $role) {
+            if (false === user_has_role($role->rid, $account)) {
+                throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->name, $role->name));
+            }
+        }
+
+    }//end assertUserRoles()
+
+
+    /**
+     * Verify that a user account does not have a set of roles.
+     *
+     * @param stdclass $account A Drupal user account object.
+     * @param array    $roles   An array of Drupal role objects.
+     *
+     * @return void
+     */
+    public function assertNotUserRoles($account, $roles)
+    {
+        foreach ($roles as $role) {
+            if (true === user_has_role($role->rid, $account)) {
+                throw new \Exception(sprintf('User "%s" has role "%s".', $account->name, $role->name));
+            }
+        }
+
+    }//end assertNotUserRoles()
+
+
+    /**
+     * Get an array of role objects from a string of one or more role names.
+     *
+     * @param string $roles A comma-separated list of one or more role names.
+     *
+     * @return array An array of Drupal role objects from user_role_load_by_name().
+     */
+    public function getRoles($roles)
+    {
+        $role_objects = array();
+
+        $role_names = array_map('trim', explode(',', $roles));
+        foreach ($role_names as $role_name) {
+            $r = user_role_load_by_name($role_name);
+            if (false === $r) {
+                throw new \Exception(sprintf('Role "%s" does not exist.', $role_name));
+            }
+
+            $role_objects[$r->rid] = $r;
+        }
+
+        return $role_objects;
+
+    }//end getRoles()
+
+
+    /**
      * Verify that an entity property is not equal to a particular value.
      *
      * @Then entity property :property should not be :value
