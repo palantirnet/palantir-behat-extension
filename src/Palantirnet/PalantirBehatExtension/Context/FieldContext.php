@@ -1,7 +1,6 @@
 <?php
 /**
- * @file
- * Contains assertions to test for field types on a form.
+ * @file Contains assertions to test for field types on a form.
  *
  * @copyright Copyright (c) 2016 Palantir.net
  */
@@ -9,6 +8,11 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Behat\Gherkin\Node\TableNode;
 
+/**
+ * Class FieldContext contains assertions to test for field types on a form.
+ *
+ *  @package Palantirnet\PalantirBehatExtension\Context
+ */
 class FieldContext extends SharedDrupalContext {
 
 
@@ -27,13 +31,14 @@ class FieldContext extends SharedDrupalContext {
    * "body" checks for the existence of the element, "#edit-body". Note, for
    * almost everything this will begin with "field-", like "field-tags".
    *
-   * @Then the form at :path has the expected fields:
-   * @Then the content type :type has the expected fields:
+   *  @Then the form at :path has the expected fields:
+   *  @Then the content type :type has the expected fields:
    *
-   * @param String $path
-   * @param TableNode $fieldsTable
-   * @param String $content_type
-   * @throws \Exception
+   *  @param String $path
+   *  @param TableNode $fieldsTable
+   *  @param String $content_type
+   *
+   *  @throws \Exception
    */
   public function assertFields($path = '', $content_type = '', TableNode $fieldsTable) {
     // Load the page with the form on it.
@@ -54,13 +59,13 @@ class FieldContext extends SharedDrupalContext {
    * Test a field on the current page to see if it matches
    * the expected HTML field type.
    *
-   * @Then the ":field" field is ":tag"
-   * @Then the ":field" field is ":tag" with type ":type"
+   *  @Then the ":field" field is ":tag"
+   *  @Then the ":field" field is ":tag" with type ":type"
    *
-   * @param string $field
-   * @param string $expectedTag
-   * @param string $expectedType
-   * @throws Exception
+   *  @param string $field
+   *  @param string $expectedTag
+   *  @param string $expectedType
+   *  @throws Exception
    */
   public function assertFieldType($field, $expectedTag, $expectedType = '') {
     $callback = 'assert' . ucfirst($expectedTag);
@@ -74,13 +79,13 @@ class FieldContext extends SharedDrupalContext {
   /**
    * Verify the field is a textarea.
    *
-   * @param $field
-   * @param $expectedType
-   * @throws Exception
+   *  @param $field
+   *  @param $expectedType
+   *  @throws Exception
    */
   public function assertTextarea($field, $expectedType) {
     $element = $this->getSession()->getPage()->find('css', $field);
-    if (NULL == $element->find('css', 'textarea.form-textarea')) {
+    if (null == $element->find('css', 'textarea.form-textarea')) {
       throw new Exception(sprintf("Couldn't find %s of type textarea.", $field));
     }
   }
@@ -88,13 +93,13 @@ class FieldContext extends SharedDrupalContext {
   /**
    * Verify the field is an input field of the given type.
    *
-   * @param $field
-   * @param $expectedType
-   * @throws Exception
+   *  @param $field
+   *  @param $expectedType
+   *  @throws Exception
    */
   public function assertInput($field, $expectedType) {
     $element = $this->getSession()->getPage()->find('css', $field);
-    if (NULL == $element || NULL == $element->find('css', 'input[type="' . $expectedType . '"]')) {
+    if (null == $element || null == $element->find('css', 'input[type="' . $expectedType . '"]')) {
       throw new Exception(sprintf("Couldn't find %s of type %s", $field, $expectedType));
     }
   }
@@ -102,13 +107,13 @@ class FieldContext extends SharedDrupalContext {
   /**
    * Verify the field is a select list.
    *
-   * @param $field
-   * @param $expectedType
-   * @throws Exception
+   *  @param $field
+   *  @param $expectedType
+   *  @throws Exception
    */
   public function assertSelect($field, $expectedType) {
     $element = $this->getSession()->getPage()->find('css', $field);
-    if (NULL == $element->find('css', 'select.form-select')) {
+    if (null == $element->find('css', 'select.form-select')) {
       throw new Exception(sprintf("Couldn't find %s of type select.", $field));
     }
     // Verify that the select list is not part of a multivalue widget.
