@@ -13,6 +13,9 @@
            before the method parameter documentation. -->
       <exclude name="Generic.Commenting.DocComment.ParamNotFirst"/>
 
+      <!-- Don't require //end functionName() at the end of functions. -->
+      <exclude name="Squiz.Commenting.ClosingDeclarationComment.Missing"/>
+
       <!-- I'm not sure how to use these tags. -->
       <exclude name="PEAR.Commenting.ClassComment.MissingCategoryTag"/>
       <exclude name="PEAR.Commenting.ClassComment.MissingPackageTag"/>
