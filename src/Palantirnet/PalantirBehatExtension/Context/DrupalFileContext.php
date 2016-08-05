@@ -32,15 +32,10 @@ class DrupalFileContext extends SharedDrupalContext
     {
         throw new NotUpdatedException();
 
-        $file = new File(array('filename' => $filename, 'status' => 1), 'file');
-//         $file->setFilename($filename);
-//         $file->setPermanent();
-//         $file->save();
-
-//         $file = (object) array(
-//                           'filename' => $filename,
-//                           'status'   => $status,
-//                          );
+        $file = new File(array(), 'file');
+        $file->setFilename($filename);
+        $file->setPermanent();
+        // $file->save(); //needs to happen somewhere
 
         $file = $this->expandFile($file);
 

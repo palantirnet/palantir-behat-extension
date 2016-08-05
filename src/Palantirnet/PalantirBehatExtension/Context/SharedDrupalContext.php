@@ -206,24 +206,24 @@ class SharedDrupalContext extends RawDrupalContext
         $file->setFileUri(rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file->getFilename());
 
         // Assign authorship if none exists and `author` is passed.
-//         if (isset($file->getOwnerId()) === false && empty($file->author) === false) {
-//             $account = user_load_by_name($file->author);
-//             if ($account !== false) {
-//                 $file->uid = $account->uid;
-//             }
-//         }
+        /* if (isset($file->getOwnerId()) === false && empty($file->author) === false) {
+            $account = user_load_by_name($file->author);
+            if ($account !== false) {
+                $file->uid = $account->uid;
+            }
+        }
 
-        // Add default values.
-//         $defaults = array(
-//                      'uid'    => 0,
-//                      'status' => 1,
-//                     );
-//
-//         foreach ($defaults as $key => $default) {
-//             if (isset($file->$key) === false) {
-//                 $file->$key = $default;
-//             }
-//         }
+        Add default values.
+        $defaults = array(
+                     'uid'    => 0,
+                     'status' => 1,
+                    );
+
+        foreach ($defaults as $key => $default) {
+            if (isset($file->$key) === false) {
+                $file->$key = $default;
+            }
+        } */
 
         return $file;
 
