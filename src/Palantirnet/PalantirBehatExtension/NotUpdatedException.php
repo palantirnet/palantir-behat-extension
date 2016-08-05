@@ -16,11 +16,11 @@ class NotUpdatedException extends InvalidDefinitionException implements ContextE
 {
 
     /**
-     * NotUpdatedException constructor.
+     * Construct the NotUpdatedException.
      *
-     * @param string     $message
-     * @param int        $code
-     * @param \Exception $previous
+     * @param String     $message  [optional] The Exception message to throw.
+     * @param Int        $code     [optional] The Exception code.
+     * @param \Exception $previous [optional] The previous exception used.
      */
     public function __construct($message, $code, \Exception $previous)
     {
