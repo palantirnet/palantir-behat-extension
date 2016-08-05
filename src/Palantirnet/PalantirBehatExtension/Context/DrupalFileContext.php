@@ -9,6 +9,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Behat\Gherkin\Node\TableNode;
 use Palantirnet\PalantirBehatExtension\NotUpdatedException;
+use Drupal\file\Entity\File;
 
 /**
  * Behat context class with additional file-related steps.
@@ -31,10 +32,15 @@ class DrupalFileContext extends SharedDrupalContext
     {
         throw new NotUpdatedException();
 
-        $file = (object) array(
-                          'filename' => $filename,
-                          'status'   => $status,
-                         );
+        $file = new File(array('filename' => $filename, 'status' => 1), 'file');
+//         $file->setFilename($filename);
+//         $file->setPermanent();
+//         $file->save();
+
+//         $file = (object) array(
+//                           'filename' => $filename,
+//                           'status'   => $status,
+//                          );
 
         $file = $this->expandFile($file);
 
