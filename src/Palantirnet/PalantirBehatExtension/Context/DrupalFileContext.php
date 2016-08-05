@@ -35,7 +35,9 @@ class DrupalFileContext extends SharedDrupalContext
         $file = new File(array(), 'file');
         $file->setFilename($filename);
         $file->setPermanent();
-        // $file->save(); //needs to happen somewhere
+        /*
+        $file->save(); //needs to happen somewhere
+        */
 
         $file = $this->expandFile($file);
 
