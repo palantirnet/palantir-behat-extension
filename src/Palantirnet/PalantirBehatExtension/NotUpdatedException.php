@@ -14,4 +14,18 @@ use Symfony\Component\Config\Definition\Exception\InvalidDefinitionException;
  */
 class NotUpdatedException extends InvalidDefinitionException implements ContextException
 {
+
+    /**
+     * NotUpdatedException constructor.
+     *
+     * @param string     $message
+     * @param int        $code
+     * @param \Exception $previous
+     */
+    public function __construct($message, $code, \Exception $previous)
+    {
+        $this->message = "Context not updated for Drupal 8. $message";
+        parent::__construct($message, $code, $previous);
+    }
+
 }//end class
