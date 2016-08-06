@@ -30,14 +30,15 @@ class DrupalFileContext extends SharedDrupalContext
      */
     public function createFile($filename, $status = 1)
     {
-        throw new NotUpdatedException();
 
         $file = new File(array(), 'file');
         $file->setFilename($filename);
-        $file->setPermanent();
-        /*
-        $file->save(); //needs to happen somewhere
-        */
+        if($status) {
+            $file->setPermanent();
+        }
+        else {
+            $file->setTemporary();
+        }
 
         $file = $this->expandFile($file);
 
@@ -63,10 +64,16 @@ class DrupalFileContext extends SharedDrupalContext
      */
     public function createFiles(TableNode $filesTable)
     {
-        throw new NotUpdatedException();
 
         foreach ($filesTable->getHash() as $fileHash) {
-            $file = (object) $fileHash;
+            $file = new File(array(), 'file');
+            $file->setFilename($fileHash['filename']);
+            if($fileHash['status']) {
+                $file->setPermanent();
+            }
+            else {
+                $file->setTemporary();
+            }
             $file = $this->expandFile($file);
 
             $this->fileCreate($file);

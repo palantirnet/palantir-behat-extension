@@ -165,8 +165,6 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function fileCreate($file)
     {
-        throw new NotUpdatedException();
-
         // Save the file and overwrite if it already exists.
         $dest   = file_build_uri(drupal_basename($file->GetFileUri()));
         $result = file_copy($file, $dest, FILE_EXISTS_REPLACE);
@@ -195,8 +193,6 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function expandFile($file)
     {
-        throw new NotUpdatedException();
-
         if (empty($file->getFilename()) === true) {
             throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
         }
@@ -204,6 +200,10 @@ class SharedDrupalContext extends RawDrupalContext
         // Set the URI to the path to the file within the MinkExtension's
         // files_path parameter.
         $file->setFileUri(rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file->getFilename());
+
+        $file->set('langcode', $file->language()->getId());
+
+        $file->setChangedTime(time());
 
         // Assign authorship if none exists and `author` is passed.
         /*
