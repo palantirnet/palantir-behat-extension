@@ -24,21 +24,16 @@ class DrupalFileContext extends SharedDrupalContext
      * @Given the file :filename
      *
      * @param string $filename The name of a file within the MinkExtension's files_path directory.
-     * @param int    $status   1 if the file is permanent and should not be deleted; 0 if the file is temporary. Defaults to 1.
+     * @param int    $status   FILE_STATUS_PERMANENT or 0 if the file is temporary. Defaults to FILE_STATUS_PERMANENT.
      *
      * @return void
      */
-    public function createFile($filename, $status = 1)
+    public function createFile($filename, $status = FILE_STATUS_PERMANENT)
     {
 
         $file = new File(array(), 'file');
         $file->setFilename($filename);
-        if($status) {
-            $file->setPermanent();
-        }
-        else {
-            $file->setTemporary();
-        }
+        $file->set('status', $status);
 
         $file = $this->expandFile($file);
 
@@ -68,12 +63,10 @@ class DrupalFileContext extends SharedDrupalContext
         foreach ($filesTable->getHash() as $fileHash) {
             $file = new File(array(), 'file');
             $file->setFilename($fileHash['filename']);
-            if($fileHash['status']) {
-                $file->setPermanent();
-            }
-            else {
-                $file->setTemporary();
-            }
+
+            $status = isset($fileHash['status']) ?: FILE_STATUS_PERMANENT;
+            $file->set('status', $status);
+
             $file = $this->expandFile($file);
 
             $this->fileCreate($file);
