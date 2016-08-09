@@ -80,40 +80,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
-     * Test for absence of a tag containing some text.
-     *
-     * @Then I should not see :text in the :tag element in the :region( region)
-     *
-     * @param string $text   The text to look for.
-     * @param string $tag    A CSS selector.
-     * @param string $region A region name from the behat config.
-     *
-     * @return void
-     */
-    public function assertNotRegionElementText($text, $tag, $region)
-    {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
-        $regionObj = $this->getRegion($region);
-        $results   = $regionObj->findAll('css', $tag);
-
-        $found = false;
-        if (empty($results) === false) {
-            foreach ($results as $result) {
-                if ($result->getText() === $text) {
-                    $found = true;
-                }
-            }
-        }
-
-        if ($found === true) {
-            throw new \Exception(sprintf('The text "%s" was found in the "%s" element in the "%s" region on the page %s', $text, $tag, $region, $this->getSession()->getCurrentUrl()));
-        }
-
-    }//end assertNotRegionElementText()
-
-
-    /**
      * Validate that a particular field label appears on the page.
      *
      * @Then I should see a/an :label field
