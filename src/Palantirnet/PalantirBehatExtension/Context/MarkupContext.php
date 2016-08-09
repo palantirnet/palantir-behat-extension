@@ -28,8 +28,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function dumpRegion($region)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         print $this->getRegion($region)->getHTML()."\r\n";
 
     }//end dumpRegion()
@@ -44,8 +42,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function dumpUrl()
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         print $this->getSession()->getCurrentUrl()."\r\n";
 
     }//end dumpUrl()
@@ -64,8 +60,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertRegionElementText($text, $tag, $region)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $regionObj = $this->getRegion($region);
         $results   = $regionObj->findAll('css', $tag);
 
