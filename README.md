@@ -3,6 +3,9 @@
 The Palantir Behat Drupal Extension provides additional step definitions for testing Drupal sites using [Behat](http://behat.org),
 [Mink Extension](https://github.com/Behat/MinkExtension).
 
+## Drupal 8
+
+All of the available steps and methods currently throw a `NotUpdatedException`. Please update them as you need them for your projects!
 
 ## What can I do with this?
 
@@ -38,7 +41,7 @@ First, add this package to your `composer.json` file:
         }
     ],
     "require-dev": {
-        "palantirnet/palantir-behat-extension": "dev-master"
+        "palantirnet/palantir-behat-extension": "dev-drupal8"
     },
 ```
 
@@ -49,15 +52,15 @@ default:
   suites:
     default:
       contexts:
-        - Palantirnet\PalantirBehatExtension\Context\DrupalAutoNodetitleContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalCommentContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalOrganicGroupsContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalSetupContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalWorkbenchModerationContext.php
-        - Palantirnet\PalantirBehatExtension\Context\EntityDataContext.php
-        - Palantirnet\PalantirBehatExtension\Context\MarkupContext.php
-        - Palantirnet\PalantirBehatExtension\Context\NodeContext.php
-        - Palantirnet\PalantirBehatExtension\Context\SharedDrupalContext.php
+        - Palantirnet\PalantirBehatExtension\Context\DrupalAutoNodetitleContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalCommentContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalOrganicGroupsContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalSetupContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalWorkbenchModerationContext
+        - Palantirnet\PalantirBehatExtension\Context\EntityDataContext
+        - Palantirnet\PalantirBehatExtension\Context\MarkupContext
+        - Palantirnet\PalantirBehatExtension\Context\NodeContext
+        - Palantirnet\PalantirBehatExtension\Context\SharedDrupalContext
 ```
 
 ----
