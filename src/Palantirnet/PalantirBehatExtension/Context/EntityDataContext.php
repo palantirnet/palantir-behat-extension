@@ -44,7 +44,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $node = $this->findNodeByTitle($contentType, $title);
 
@@ -66,7 +66,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertTermByName($termName, $vocabulary)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $term = $this->findTermByName($termName, $vocabulary);
 
@@ -87,7 +87,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertUserByName($userName)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $account = $this->findUserByName($userName);
 
@@ -109,7 +109,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityPropertyValue($property, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         if ($wrapper->$property->value() !== $value) {
@@ -130,7 +130,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertUserHasRoles($role)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertEntityIsUser();
 
@@ -152,7 +152,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotUserHasRoles($role)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertEntityIsUser();
 
@@ -170,7 +170,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityIsUser()
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if ('user' !== $this->currentEntityType) {
             throw new \Exception(sprintf('Entity is not a user.'));
@@ -189,7 +189,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertUserRoles($account, $roles)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         foreach ($roles as $role) {
             if (false === user_has_role($role->rid, $account)) {
@@ -210,7 +210,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotUserRoles($account, $roles)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         foreach ($roles as $role) {
             if (true === user_has_role($role->rid, $account)) {
@@ -230,7 +230,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function getRoles($roles)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $role_objects = array();
 
@@ -261,7 +261,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotEntityPropertyValue($property, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         if ($wrapper->$property->value() === $value) {
@@ -283,7 +283,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValue($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if (empty($field) === true || empty($value) === true) {
             return;
@@ -326,7 +326,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNotEntityFieldValue($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         try {
             $this->assertEntityFieldValue($field, $value);
@@ -353,7 +353,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueLinkField($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
@@ -385,7 +385,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueTextLong($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
 
@@ -416,7 +416,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueFile($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
@@ -451,7 +451,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueImage($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertEntityFieldValueFile($field, $value);
 
@@ -470,7 +470,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueTaxonomyTermReference($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
@@ -506,7 +506,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueEntityReference($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $field_info = field_info_field($field);
         $items      = field_get_items($this->currentEntityType, $this->currentEntity, $field);
@@ -550,7 +550,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueDatetime($field, $value)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();
@@ -601,7 +601,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function dumpField($field)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();

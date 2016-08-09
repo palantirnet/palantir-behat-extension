@@ -131,7 +131,7 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function getAccount()
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if (empty($this->drupalContext->user) === false) {
             $account = user_load($this->drupalContext->user->uid);
@@ -158,7 +158,7 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function createComment($comment)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         // Assign authorship if none exists and `author` is passed.
         if (isset($comment->uid) === false && empty($comment->author) === false) {
@@ -215,7 +215,7 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function expandEntityFields($entity_type, \stdClass $entity)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $field_types = $this->getDriver()->getCore()->getEntityFieldTypes($entity_type);
 
@@ -242,7 +242,7 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function assertCommentsAreOpen($type, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $node = $this->getNodeByTitle($type, $title);
         if ((int) $node->comment !== COMMENT_NODE_OPEN) {
@@ -265,7 +265,7 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     function createCommentOnContent($text, $type, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertCommentsAreOpen($type, $title);
 
@@ -302,7 +302,7 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function createCommentsOnContent($type, $title, TableNode $commentsTable)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertCommentsAreOpen($type, $title);
 

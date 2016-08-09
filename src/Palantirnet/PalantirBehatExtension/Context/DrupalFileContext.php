@@ -29,7 +29,7 @@ class DrupalFileContext extends SharedDrupalContext
      */
     public function createFile($filename, $status = 1)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $file = (object) array(
                           'filename' => $filename,
@@ -60,7 +60,7 @@ class DrupalFileContext extends SharedDrupalContext
      */
     public function createFiles(TableNode $filesTable)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         foreach ($filesTable->getHash() as $fileHash) {
             $file = (object) $fileHash;

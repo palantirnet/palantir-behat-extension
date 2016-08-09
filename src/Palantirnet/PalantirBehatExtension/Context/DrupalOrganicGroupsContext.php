@@ -86,7 +86,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     protected function getAccount()
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if (empty($this->drupalContext->user) === false) {
             $account = user_load($this->drupalContext->user->uid);
@@ -115,7 +115,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertGroupRole($group_role, $group_node_type, $group_node_title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->drupalContext->assertAuthenticatedByRole('authenticated user');
 
@@ -162,7 +162,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertHasGroupRole($group_role, $group_node_type, $group_node_title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $group_node = $this->findNodeByTitle($group_node_type, $group_node_title);
 
@@ -189,7 +189,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertNodeIsGroup($type, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $node = $this->findNodeByTitle($type, $title);
 
@@ -215,7 +215,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertCreateGroupContent($type, $group_type, $group_title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertGroupContent($type, $group_type, $group_title);
 
@@ -243,7 +243,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertNotCreateGroupContent($type, $group_type, $group_title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertGroupContent($type, $group_type, $group_title);
 
@@ -268,7 +268,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertEditGroupContent($type, $group_type, $group_title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertGroupContent($type, $group_type, $group_title);
 
@@ -293,7 +293,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function assertNotEditGroupContent($type, $group_type, $group_title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertGroupContent($type, $group_type, $group_title);
 
@@ -319,7 +319,7 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     protected function assertGroupContent($type, $group_type, $group_title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if (og_is_group_content_type('node', $type) === false) {
             throw new \Exception(sprintf('Content of type "%s" can not be added to any group because it is not a group content type.'));
