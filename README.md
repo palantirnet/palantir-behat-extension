@@ -49,15 +49,15 @@ default:
   suites:
     default:
       contexts:
-        - Palantirnet\PalantirBehatExtension\Context\DrupalAutoNodetitleContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalCommentContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalOrganicGroupsContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalSetupContext.php
-        - Palantirnet\PalantirBehatExtension\Context\DrupalWorkbenchModerationContext.php
-        - Palantirnet\PalantirBehatExtension\Context\EntityDataContext.php
-        - Palantirnet\PalantirBehatExtension\Context\MarkupContext.php
-        - Palantirnet\PalantirBehatExtension\Context\NodeContext.php
-        - Palantirnet\PalantirBehatExtension\Context\SharedDrupalContext.php
+        - Palantirnet\PalantirBehatExtension\Context\DrupalAutoNodetitleContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalCommentContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalOrganicGroupsContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalSetupContext
+        - Palantirnet\PalantirBehatExtension\Context\DrupalWorkbenchModerationContext
+        - Palantirnet\PalantirBehatExtension\Context\EntityDataContext
+        - Palantirnet\PalantirBehatExtension\Context\MarkupContext
+        - Palantirnet\PalantirBehatExtension\Context\NodeContext
+        - Palantirnet\PalantirBehatExtension\Context\SharedDrupalContext
 ```
 
 ----
