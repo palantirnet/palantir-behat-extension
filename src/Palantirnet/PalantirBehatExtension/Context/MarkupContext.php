@@ -130,8 +130,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertFieldByLabel($label)
     {
-        throw new NotUpdatedException();
-
         $page  = $this->getSession()->getPage();
         $field = $page->findField($label);
 
@@ -153,8 +151,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertNotFieldByLabel($label)
     {
-        throw new NotUpdatedException();
-
         try {
             $this->assertFieldByLabel($label);
         }
