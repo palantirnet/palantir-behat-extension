@@ -38,8 +38,6 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
      */
     public function disableAutoNodetitle()
     {
-        throw new NotUpdatedException();
-
         $this->disableAutoNodetitle = true;
 
     }//end disableAutoNodetitle()

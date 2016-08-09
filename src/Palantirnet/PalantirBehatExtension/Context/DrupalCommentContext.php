@@ -63,8 +63,6 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function gatherContexts(BeforeScenarioScope $scope)
     {
-        throw new NotUpdatedException();
-
         $environment         = $scope->getEnvironment();
         $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
 
@@ -82,11 +80,14 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function checkDependencies(BeforeScenarioScope $scope)
     {
-        throw new NotUpdatedException();
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
 
-        if (module_exists('comment') === false) {
-            throw new \Exception('The Comment module is not available.');
-        }
+            if (module_exists('comment') === false) {
+                throw new \Exception('The Comment module is not available.');
+            }
+        */
 
     }//end checkDependencies()
 
@@ -100,12 +101,15 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function cleanComments()
     {
-        throw new NotUpdatedException();
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
 
-        // Remove any comments that were created.
-        foreach ($this->comments as $comment) {
-            comment_delete($comment->cid);
-        }
+            // Remove any comments that were created.
+            foreach ($this->comments as $comment) {
+                comment_delete($comment->cid);
+            }
+        */
 
         $this->comments = array();
 

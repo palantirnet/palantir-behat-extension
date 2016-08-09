@@ -37,8 +37,6 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
      */
     public function disableWorkbenchModeration()
     {
-        throw new NotUpdatedException();
-
         $this->disableWorkbenchModeration = true;
 
     }//end disableWorkbenchModeration()

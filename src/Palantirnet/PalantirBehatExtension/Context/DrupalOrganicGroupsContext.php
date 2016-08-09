@@ -46,8 +46,6 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function gatherContexts(BeforeScenarioScope $scope)
     {
-        throw new NotUpdatedException();
-
         $environment         = $scope->getEnvironment();
         $this->drupalContext = $environment->getContext('Drupal\DrupalExtension\Context\DrupalContext');
 
@@ -65,11 +63,14 @@ class DrupalOrganicGroupsContext extends SharedDrupalContext
      */
     public function checkDependencies(BeforeScenarioScope $scope)
     {
-        throw new NotUpdatedException();
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
 
-        if (module_exists('og') === false) {
-            throw new \Exception('The Organic Groups module is not installed.');
-        }
+            if (module_exists('og') === false) {
+                throw new \Exception('The Organic Groups module is not installed.');
+            }
+        */
 
     }//end checkDependencies()
 

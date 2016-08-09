@@ -246,11 +246,14 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function cleanFiles()
     {
-        throw new NotUpdatedException();
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
 
-        foreach ($this->files as $file) {
-            file_delete($file, true);
-        }
+            foreach ($this->files as $file) {
+                file_delete($file, true);
+            }
+        */
 
         $this->files = array();
 
