@@ -13,9 +13,11 @@
 
 namespace Palantirnet\PalantirBehatExtension\Context;
 
+use Behat\Gherkin\Node\TableNode;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
-use Palantirnet\PalantirBehatExtension\NotUpdatedException;
+use Drupal\DrupalExtension\Hook\Scope\EntityScope;
 use Drupal\file\Entity\File;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context class with functionality that is shared across custom contexts.
@@ -151,112 +153,6 @@ class SharedDrupalContext extends RawDrupalContext
         }
 
     }//end findUserByName()
-
-
-    /**
-     * Save a file.
-     *
-     * @param stdclass $file A simple object representing file data.
-     *   Properties should be scalar values, and files may use either the 'uid' or
-     *   'author' fields to attribute the file to a particular Drupal user.
-     *
-     * @return stdclass
-     *   A Drupal file object.
-     */
-    public function fileCreate($file)
-    {
-        // Save the file and overwrite if it already exists.
-        $dest   = file_build_uri(drupal_basename($file->GetFileUri()));
-        $result = file_copy($file, $dest, FILE_EXISTS_REPLACE);
-
-        // Stash the file object for later cleanup.
-        if (empty($result->id()) === false) {
-            $this->files[] = $result;
-        } else {
-            throw new \Exception(sprintf('File "%s" could not be copied from "%s" to "%s".', $file->getFilename(), $file->GetFileUri(), $result->GetFileUri()));
-        }
-
-        return $result;
-
-    }//end fileCreate()
-
-
-    /**
-     * Add required file properties.
-     *
-     * @param stdclass $file A simple object representing file data. The 'filename'
-     *   property is required.
-     *
-     * @return stdclass
-     *   A file object with at least the filename, uri, uid, and status
-     *   properties.
-     */
-    public function expandFile($file)
-    {
-        if (empty($file->getFilename()) === true) {
-            throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
-        }
-
-        // Set the URI to the path to the file within the MinkExtension's
-        // files_path parameter.
-        $file->setFileUri(rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file->getFilename());
-
-        $file->set('langcode', $file->language()->getId());
-
-        $file->setChangedTime(time());
-
-        // Assign authorship if none exists and `author` is passed.
-        /*
-        if (isset($file->getOwnerId()) === false && empty($file->author) === false) {
-            $account = user_load_by_name($file->author);
-            if ($account !== false) {
-                $file->uid = $account->uid;
-            }
-        }
-
-        Add default values.
-        $defaults = array(
-                     'uid'    => 0,
-                     'status' => 1,
-                    );
-
-        foreach ($defaults as $key => $default) {
-            if (isset($file->$key) === false) {
-                $file->$key = $default;
-            }
-        } */
-
-        return $file;
-
-    }//end expandFile()
-
-
-    /**
-     * Keep track of files so they can be cleaned up.
-     *
-     * @var array
-     */
-    protected $files = array();
-
-
-    /**
-     * Remove any created files.
-     *
-     * @AfterScenario
-     *
-     * @return void
-     */
-    public function cleanFiles()
-    {
-        throw new NotUpdatedException();
-
-        foreach ($this->files as $file) {
-            file_delete($file, true);
-        }
-
-        $this->files = array();
-
-    }//end cleanFiles()
 
 
 }//end class

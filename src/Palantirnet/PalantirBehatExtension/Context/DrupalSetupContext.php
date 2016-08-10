@@ -25,7 +25,6 @@ class DrupalSetupContext extends SharedDrupalContext
      */
     public function assertDrupal()
     {
-        throw new NotUpdatedException();
 
         if ($this->getDriver()->isBootstrapped() === false) {
             throw new \Exception('The Drupal site is not bootstrapped.');
