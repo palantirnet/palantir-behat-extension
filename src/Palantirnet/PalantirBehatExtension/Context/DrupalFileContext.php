@@ -223,7 +223,7 @@ class DrupalFileContext extends SharedDrupalContext
         );
 
         $manager = Drupal::entityTypeManager()->getStorage('file');
-        $manager->delete($files);
+        @$manager->delete($files);
 
         foreach ($files as $filename => $file) {
             $file->delete();
