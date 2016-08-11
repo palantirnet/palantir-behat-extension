@@ -5,7 +5,11 @@ The Palantir Behat Drupal Extension provides additional step definitions for tes
 
 ## Drupal 8
 
-All of the available steps and methods currently throw a `NotUpdatedException`. Please update them as you need them for your projects!
+Drupal 8 is supported using the `drupal8` branch, but all of the available steps and methods currently throw a `NotUpdatedException`. Please update them as you need them for your projects!
+
+## Drupal 7
+
+Drupal 7 is supported using the `master` branch.
 
 ## What can I do with this?
 
