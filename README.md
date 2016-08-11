@@ -3,6 +3,10 @@
 The Palantir Behat Drupal Extension provides additional step definitions for testing Drupal sites using [Behat](http://behat.org),
 [Mink Extension](https://github.com/Behat/MinkExtension).
 
+## Drupal 7
+
+Drupal 7 is supported using the `master` branch. If you're working on a Drupal 8 project, you need to switch to the `drupal8` branch.
+
 
 ## What can I do with this?
 
