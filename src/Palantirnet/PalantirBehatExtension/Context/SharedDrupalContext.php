@@ -15,6 +15,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Palantirnet\PalantirBehatExtension\NotUpdatedException;
+use Drupal\file\Entity\File;
 
 /**
  * Behat context class with functionality that is shared across custom contexts.
@@ -164,17 +165,15 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function fileCreate($file)
     {
-        throw new NotUpdatedException();
-
         // Save the file and overwrite if it already exists.
-        $dest   = file_build_uri(drupal_basename($file->uri));
+        $dest   = file_build_uri(drupal_basename($file->GetFileUri()));
         $result = file_copy($file, $dest, FILE_EXISTS_REPLACE);
 
         // Stash the file object for later cleanup.
-        if (empty($result->fid) === false) {
+        if (empty($result->id()) === false) {
             $this->files[] = $result;
         } else {
-            throw new \Exception(sprintf('File "%s" could not be copied from "%s" to "%s".', $file->filename, $file->uri, $result->uri));
+            throw new \Exception(sprintf('File "%s" could not be copied from "%s" to "%s".', $file->getFilename(), $file->GetFileUri(), $result->GetFileUri()));
         }
 
         return $result;
@@ -194,25 +193,28 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function expandFile($file)
     {
-        throw new NotUpdatedException();
-
-        if (empty($file->filename) === true) {
+        if (empty($file->getFilename()) === true) {
             throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
         }
 
         // Set the URI to the path to the file within the MinkExtension's
         // files_path parameter.
-        $file->uri = rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file->filename;
+        $file->setFileUri(rtrim(realpath($this->getMinkParameter('files_path')), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$file->getFilename());
+
+        $file->set('langcode', $file->language()->getId());
+
+        $file->setChangedTime(time());
 
         // Assign authorship if none exists and `author` is passed.
-        if (isset($file->uid) === false && empty($file->author) === false) {
+        /*
+        if (isset($file->getOwnerId()) === false && empty($file->author) === false) {
             $account = user_load_by_name($file->author);
             if ($account !== false) {
                 $file->uid = $account->uid;
             }
         }
 
-        // Add default values.
+        Add default values.
         $defaults = array(
                      'uid'    => 0,
                      'status' => 1,
@@ -222,7 +224,7 @@ class SharedDrupalContext extends RawDrupalContext
             if (isset($file->$key) === false) {
                 $file->$key = $default;
             }
-        }
+        } */
 
         return $file;
 

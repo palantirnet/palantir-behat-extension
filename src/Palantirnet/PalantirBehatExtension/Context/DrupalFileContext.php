@@ -9,6 +9,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Behat\Gherkin\Node\TableNode;
 use Palantirnet\PalantirBehatExtension\NotUpdatedException;
+use Drupal\file\Entity\File;
 
 /**
  * Behat context class with additional file-related steps.
@@ -23,18 +24,16 @@ class DrupalFileContext extends SharedDrupalContext
      * @Given the file :filename
      *
      * @param string $filename The name of a file within the MinkExtension's files_path directory.
-     * @param int    $status   1 if the file is permanent and should not be deleted; 0 if the file is temporary. Defaults to 1.
+     * @param int    $status   FILE_STATUS_PERMANENT or 0 if the file is temporary. Defaults to FILE_STATUS_PERMANENT.
      *
      * @return void
      */
-    public function createFile($filename, $status = 1)
+    public function createFile($filename, $status = FILE_STATUS_PERMANENT)
     {
-        throw new NotUpdatedException();
 
-        $file = (object) array(
-                          'filename' => $filename,
-                          'status'   => $status,
-                         );
+        $file = new File(array(), 'file');
+        $file->setFilename($filename);
+        $file->set('status', $status);
 
         $file = $this->expandFile($file);
 
@@ -60,10 +59,14 @@ class DrupalFileContext extends SharedDrupalContext
      */
     public function createFiles(TableNode $filesTable)
     {
-        throw new NotUpdatedException();
 
         foreach ($filesTable->getHash() as $fileHash) {
-            $file = (object) $fileHash;
+            $file = new File(array(), 'file');
+            $file->setFilename($fileHash['filename']);
+
+            $status = isset($fileHash['status']) ?: FILE_STATUS_PERMANENT;
+            $file->set('status', $status);
+
             $file = $this->expandFile($file);
 
             $this->fileCreate($file);
