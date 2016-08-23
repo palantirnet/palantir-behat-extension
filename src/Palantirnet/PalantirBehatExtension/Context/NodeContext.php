@@ -29,7 +29,7 @@ class NodeContext extends SharedDrupalContext
      */
     public function assertNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $node = $this->findNodeByTitle($contentType, $title);
         $this->getSession()->visit($this->locatePath("node/{$node->nid}"));
@@ -49,7 +49,7 @@ class NodeContext extends SharedDrupalContext
      */
     public function assertEditNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $node = $this->findNodeByTitle($contentType, $title);
         $this->getSession()->visit($this->locatePath("node/{$node->nid}/edit"));

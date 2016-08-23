@@ -25,7 +25,7 @@ class DrupalSetupContext extends SharedDrupalContext
      */
     public function assertDrupal()
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if ($this->getDriver()->isBootstrapped() === false) {
             throw new \Exception('The Drupal site is not bootstrapped.');
@@ -45,7 +45,7 @@ class DrupalSetupContext extends SharedDrupalContext
      */
     public function assertModuleInstalled($module)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if (module_exists($module) === false) {
             throw new \Exception(sprintf('The "%s" module is not installed.', $module));
@@ -63,7 +63,7 @@ class DrupalSetupContext extends SharedDrupalContext
      */
     public function assertDefaultDrupalFeatures()
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertModuleInstalled('features');
 

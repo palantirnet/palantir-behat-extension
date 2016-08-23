@@ -38,8 +38,6 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
      */
     public function disableAutoNodetitle()
     {
-        throw new NotUpdatedException();
-
         $this->disableAutoNodetitle = true;
 
     }//end disableAutoNodetitle()
@@ -59,7 +57,7 @@ class DrupalAutoNodetitleContext extends SharedDrupalContext
      */
     public function prepareAutoNodetitleNode(BeforeNodeCreateScope $scope)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if ($this->disableAutoNodetitle === true) {
             $node = $scope->getEntity();

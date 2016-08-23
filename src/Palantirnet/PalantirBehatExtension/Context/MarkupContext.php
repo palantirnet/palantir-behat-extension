@@ -28,8 +28,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function dumpRegion($region)
     {
-        throw new NotUpdatedException();
-
         print $this->getRegion($region)->getHTML()."\r\n";
 
     }//end dumpRegion()
@@ -44,8 +42,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function dumpUrl()
     {
-        throw new NotUpdatedException();
-
         print $this->getSession()->getCurrentUrl()."\r\n";
 
     }//end dumpUrl()
@@ -64,8 +60,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertRegionElementText($text, $tag, $region)
     {
-        throw new NotUpdatedException();
-
         $regionObj = $this->getRegion($region);
         $results   = $regionObj->findAll('css', $tag);
 
@@ -86,40 +80,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
 
 
     /**
-     * Test for absence of a tag containing some text.
-     *
-     * @Then I should not see :text in the :tag element in the :region( region)
-     *
-     * @param string $text   The text to look for.
-     * @param string $tag    A CSS selector.
-     * @param string $region A region name from the behat config.
-     *
-     * @return void
-     */
-    public function assertNotRegionElementText($text, $tag, $region)
-    {
-        throw new NotUpdatedException();
-
-        $regionObj = $this->getRegion($region);
-        $results   = $regionObj->findAll('css', $tag);
-
-        $found = false;
-        if (empty($results) === false) {
-            foreach ($results as $result) {
-                if ($result->getText() === $text) {
-                    $found = true;
-                }
-            }
-        }
-
-        if ($found === true) {
-            throw new \Exception(sprintf('The text "%s" was found in the "%s" element in the "%s" region on the page %s', $text, $tag, $region, $this->getSession()->getCurrentUrl()));
-        }
-
-    }//end assertNotRegionElementText()
-
-
-    /**
      * Validate that a particular field label appears on the page.
      *
      * @Then I should see a/an :label field
@@ -130,8 +90,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertFieldByLabel($label)
     {
-        throw new NotUpdatedException();
-
         $page  = $this->getSession()->getPage();
         $field = $page->findField($label);
 
@@ -153,8 +111,6 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertNotFieldByLabel($label)
     {
-        throw new NotUpdatedException();
-
         try {
             $this->assertFieldByLabel($label);
         }
@@ -178,7 +134,7 @@ class MarkupContext extends DrupalExtensionMarkupContext
      */
     public function assertFieldsetByLabel($label)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $page     = $this->getSession()->getPage();
         $legend   = $this->getSession()->getSelectorsHandler()->xpathLiteral($label);

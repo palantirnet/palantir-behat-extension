@@ -38,7 +38,7 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $query = new \EntityFieldQuery();
 
@@ -70,7 +70,7 @@ class SharedDrupalContext extends RawDrupalContext
      */
     protected function getNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         try {
             $node = $this->findNodeByTitle($contentType, $title);
@@ -101,7 +101,7 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findTermByName($termName, $vocabulary)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $query = new \EntityFieldQuery();
 
@@ -132,7 +132,7 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findUserByName($userName)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $query = new \EntityFieldQuery();
 
@@ -164,7 +164,7 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function fileCreate($file)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         // Save the file and overwrite if it already exists.
         $dest   = file_build_uri(drupal_basename($file->uri));
@@ -194,7 +194,7 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function expandFile($file)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if (empty($file->filename) === true) {
             throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
@@ -246,11 +246,14 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function cleanFiles()
     {
-        throw new NotUpdatedException();
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
 
-        foreach ($this->files as $file) {
-            file_delete($file, true);
-        }
+            foreach ($this->files as $file) {
+                file_delete($file, true);
+            }
+        */
 
         $this->files = array();
 

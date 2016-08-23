@@ -37,8 +37,6 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
      */
     public function disableWorkbenchModeration()
     {
-        throw new NotUpdatedException();
-
         $this->disableWorkbenchModeration = true;
 
     }//end disableWorkbenchModeration()
@@ -58,7 +56,7 @@ class DrupalWorkbenchModerationContext extends SharedDrupalContext
      */
     public function prepareWorkbenchModerationNode(BeforeNodeCreateScope $scope)
     {
-        throw new NotUpdatedException();
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         if ($this->disableWorkbenchModeration === true) {
             $node         = $scope->getEntity();
