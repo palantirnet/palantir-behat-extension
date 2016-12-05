@@ -5,9 +5,9 @@
  *
  * @copyright 2016 Palantir.net
  */
+namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Behat\Gherkin\Node\TableNode;
-use Palantirnet\PalantirBehatExtension\Context\SharedDrupalContext;
 
 /**
  * Class DrupalUserContext
@@ -42,7 +42,7 @@ class DrupalUserContext extends SharedDrupalContext
 
             // Check the permission against the role.
             if (false === $roleStorage->isPermissionInRoles($perm, $rids)) {
-                throw new Exception('Role '.$role.' does not have permission '.$perm);
+                throw new \Exception('Role '.$role.' does not have permission '.$perm);
             }
         }
 
