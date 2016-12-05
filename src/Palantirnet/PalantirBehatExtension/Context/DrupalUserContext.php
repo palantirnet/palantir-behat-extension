@@ -69,13 +69,13 @@ class DrupalUserContext extends SharedDrupalContext
         // Convert the single role given to an array for the isPermissionInRoles() function.
         $rids = array($role);
 
-        foreach($perms->getHash() as $row){
+        foreach ($perms->getHash() as $row) {
             // Grab the value out of the row. It will always be the first value.
             $perm = reset($row);
 
             // Check the permission against the role.
             $has_permission = $roleStorage->isPermissionInRoles($perm, $rids);
-            if($has_permission) {
+            if (true === $has_permission) {
                 throw new \Exception('Role "'.$role.'" has permission "'.$perm.'" but it should not.');
             }
         }
@@ -83,4 +83,4 @@ class DrupalUserContext extends SharedDrupalContext
     }//end assertRoleHasNoPermission()
 
 
-}//end class}
+}//end class
