@@ -523,7 +523,7 @@ class EntityDataContext extends SharedDrupalContext
             throw new \Exception(sprintf('Field does not contain entity with title "%s" (has "%s" titles instead).', $value, json_encode($titles)));
         }
 
-        throw new \Exception(sprintf('Field "%s" is empty.', $field));
+        throw new \Exception('Field is empty.');
 
     }//end assertEntityFieldValueEntityReference()
 
