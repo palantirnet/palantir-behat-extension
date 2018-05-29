@@ -44,8 +44,6 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $node = $this->findNodeByTitle($contentType, $title);
 
         $this->currentEntity     = $node;
@@ -109,10 +107,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityPropertyValue($property, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        if ($wrapper->$property->value() !== $value) {
+        if ($this->currentEntity->$property->value !== $value) {
             throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
         }
 
@@ -281,34 +276,40 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @return void
      */
-    public function assertEntityFieldValue($field, $value)
+    public function assertEntityFieldValue($field_name, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        $field = $this->currentEntity->get($field_name);
 
-        if (empty($field) === true || empty($value) === true) {
-            return;
-        }
+        /**
+         * @var $definition \Drupal\Core\Field\BaseFieldDefinition
+         */
+        $definition = $field->getFieldDefinition();
 
-        // Use a per-field-type test method, if it is present.
-        $field_info = field_info_field($field);
-        if (empty($field_info) === true) {
-            throw new \Exception(sprintf('Field "%s" does not exist', $field));
-        }
+        $field_type = $definition->get('field_type');
 
-        $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_info['type'])));
+        // If a method exists to handle this field type, use it.
+        $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_type)));
         if (method_exists($this, $method_name) === true) {
             return $this->$method_name($field, $value);
         }
 
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        $field_value = $field->getValue();
 
-        $field_value = $wrapper->$field->value();
+        // Special case for expecting nothing
+        if ($value === 'nothing') {
+            if (!empty($field_value)) {
+                throw new \Exception(sprintf('Field "%s" has a value of "%s" and does not contain "%s"', $field_name, json_encode($field_value), $value));
+            }
+
+            return;
+        }
+
         if (is_array($field_value) === false) {
             $field_value = array($field_value);
         }
 
         if (in_array($value, $field_value) === false) {
-            throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
+            throw new \Exception(sprintf('Field "%s" has a value of "%s" and does not contain "%s"', $field_name, json_encode($field_value), $value));
         }
 
     }//end assertEntityFieldValue()
@@ -506,22 +507,20 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueEntityReference($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        $entities = $field->referencedEntities();
 
-        $field_info = field_info_field($field);
-        $items      = field_get_items($this->currentEntityType, $this->currentEntity, $field);
+        if (empty($entities) === false) {
+            $titles = [];
 
-        if (empty($items) === false) {
-            foreach ($items as $item) {
-                $entities = entity_load($field_info['settings']['target_type'], $item);
-                $label    = entity_label($field_info['settings']['target_type'], current($entities));
+            foreach ($entities as $entity) {
+                $titles[] = $entity->title->value;
 
-                if ($label === $value) {
+                if ($entity->title->value === $value) {
                     return;
                 }
             }
 
-            throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s" (has "%s" instead).', $field, $value, $label));
+            throw new \Exception(sprintf('Field does not contain entity with title "%s" (has "%s" titles instead).', $value, json_encode($titles)));
         }
 
         throw new \Exception(sprintf('Field "%s" is empty.', $field));
