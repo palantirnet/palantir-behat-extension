@@ -28,6 +28,9 @@ use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 class EntityDataContext extends SharedDrupalContext
 {
 
+    /**
+     * @var $currentEntity \Drupal\Core\Entity\EntityInterface
+     */
     protected $currentEntity     = null;
     protected $currentEntityType = null;
 
@@ -464,7 +467,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test an entity reference field for an entity label.
      *
-     * @param string $field A Drupal field name.
+     * @param object $field A Drupal field object.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -478,10 +481,24 @@ class EntityDataContext extends SharedDrupalContext
         if (empty($entities) === false) {
             $titles = [];
 
+            /**
+             * @var $entity \Drupal\Core\Entity\EntityInterface
+             */
             foreach ($entities as $entity) {
-                $titles[] = $entity->title->value;
 
-                if ($entity->title->value === $value) {
+                switch ($entity->getEntityTypeId()) {
+                    case 'taxonomy_term':
+                    case 'user':
+                        $title = $entity->name->value;
+                        break;
+                    default:
+                        $title = $entity->title->value;
+                        break;
+                }
+
+                $titles[] = $title;
+
+                if ($title === $value) {
                     return;
                 }
             }
