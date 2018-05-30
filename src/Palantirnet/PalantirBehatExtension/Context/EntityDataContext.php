@@ -462,42 +462,6 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
-     * Test a taxonomy term reference field for a term name.
-     *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
-     *
-     * @throws \Exception
-     *
-     * @return void
-     */
-    public function assertEntityFieldValueTaxonomyTermReference($field, $value)
-    {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-
-        if (empty($field_value) === false) {
-            // Term field values are term objects.
-            if (is_array($field_value) === false) {
-                $field_value = array($field_value);
-            }
-
-            foreach ($field_value as $term) {
-                if (is_object($term) === true && empty($term->name) === false && $term->name === $value) {
-                    return;
-                }
-            }
-        }
-
-        throw new \Exception(sprintf('Field "%s" does not contain term "%s"', $field, $value));
-
-    }//end assertEntityFieldValueTaxonomyTermReference()
-
-
-    /**
      * Test an entity reference field for an entity label.
      *
      * @param string $field A Drupal field name.
