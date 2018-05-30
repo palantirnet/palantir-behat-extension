@@ -273,7 +273,7 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @Then entity field :field should contain :value
      *
-     * @param string $field A Drupal field name.
+     * @param string $field_name A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @return void
@@ -350,7 +350,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test a link field for its URL value.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @return void
@@ -382,7 +382,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test a text field for a partial string.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -413,7 +413,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test a file field for a Drupal stream wrapper URI.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -448,7 +448,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test an image field for a Drupal stream wrapper URI.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -467,7 +467,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test an entity reference field for an entity label.
      *
-     * @param object $field A Drupal field object.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field object.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -514,7 +514,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test a date field for some date.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
