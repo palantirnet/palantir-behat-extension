@@ -512,52 +512,17 @@ class EntityDataContext extends SharedDrupalContext
      * @return void
      *
      * @todo : Update method to handle date fields with start and end dates
-     * The call to $wrapper->$field->value() returns either an array or a scalar
-     * because entity_metadata_wrapper() makes the date field values array
-     * unpredictable. When working with date fields that have both a start and
-     * end time, an array is returned instead of a scalar. If we want to test
-     * for start and end dates, we would want to use Behat syntax similar to
+     * If we want to test for start and end dates, we would want to use Behat syntax
      * "Then entity field ":field should contain "<start_date> - <end_date>".
-     * This method would need to be updated to handle that approach.
      */
     public function assertEntityFieldValueDatetime($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
-        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        $field_value = $wrapper->$field->value();
-
-        if (is_scalar($field_value) === true) {
-            $field_value = array($field_value);
+        if (strtotime($field->value) === strtotime($value)) {
+          return;
         }
 
-        if (is_array($field_value) === false) {
-            $field_value = array();
-        }
-
-        foreach ($field_value as $v) {
-            if (is_array($v) === true) {
-                // The value may exist as either the start date ('value') or the end
-                // date ('value2').
-                if (array_key_exists('value', $v) === true) {
-                    if (strtotime($value) === strtotime($v['value'])) {
-                        return;
-                    }
-                }
-
-                if (array_key_exists('value2', $v) === true) {
-                    if (strtotime($value) === strtotime($v['value2'])) {
-                        return;
-                    }
-                }
-            }
-
-            if (strtotime($value) === $v) {
-                return;
-            }
-        }//end foreach
-
-        throw new \Exception(sprintf('Field "%s" does not contain datetime "%s" (%s)', $field, strtotime($value), $value));
+        throw new \Exception(sprintf('Field does not contain datetime "%s" (%s), contains "%s".', strtotime($value), $value, strtotime($field->value)));
 
     }//end assertEntityFieldValueDatetime()
 
