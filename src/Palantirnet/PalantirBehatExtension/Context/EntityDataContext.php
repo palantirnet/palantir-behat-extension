@@ -346,6 +346,39 @@ class EntityDataContext extends SharedDrupalContext
 
     }//end assertNotEntityFieldValue()
 
+    /**
+     * Verify that a field contains a value.
+     *
+     * @Then paragraph field :field should be of type :type
+     *
+     * @param string $field_name A Drupal field name.
+     * @param mixed  $type The type of paragraph.
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueParagraph($field_name, $type)
+    {
+      /**
+       * @var $field \Drupal\Core\Field\FieldItemList
+       */
+      $field = $this->currentEntity->get($field_name);
+
+      $types = [];
+
+      /**
+       * @var $entity \Drupal\paragraphs\Entity\Paragraph
+       */
+      foreach ($field->referencedEntities() as $entity) {
+          $types[] = $entity->getType();
+      }
+
+      if (!in_array($type, $types)) {
+          throw new \Exception(sprintf('Paragraph does not have type "%s", has types "%s".', $type, json_encode($types)));
+      }
+
+
+    }//end assertEntityFieldValue()
+
 
     /**
      * Test a link field for its URL value.
@@ -472,13 +505,17 @@ class EntityDataContext extends SharedDrupalContext
             $titles = [];
 
             /**
-             * @var $entity \Drupal\Core\Entity\EntityInterface
+             * @var $entity \Drupal\Core\Entity\ContentEntityBase
              */
             foreach ($entities as $entity) {
 
                 switch ($entity->getEntityTypeId()) {
                     case 'node':
                         $title = $entity->title->value;
+                        break;
+
+                    case 'paragraph':
+                        throw new \Exception('Paragraphs do not have titles, so they must be tested by a different method.');
                         break;
 
                     case 'taxonomy_term':
@@ -502,6 +539,22 @@ class EntityDataContext extends SharedDrupalContext
         throw new \Exception('Field is empty.');
 
     }//end assertEntityFieldValueEntityReference()
+
+
+    /**
+     * Passes handling to the generic Entity Reference method.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field object.
+     * @param mixed  $value The value to look for.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueEntityReferenceRevisions($field, $value)
+    {
+        $this->assertEntityFieldValueEntityReference($field, $value);
+    }//end assertEntityFieldValueEntityReferenceRevisions()
 
 
     /**
