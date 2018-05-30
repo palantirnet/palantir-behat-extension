@@ -391,21 +391,11 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueTextLong($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
-        $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
-
-        if ($items === false) {
-            throw new \Exception(sprintf('No field data available for "%s".', $field));
+        if (strpos($field->value, $value) !== false) {
+            return;
         }
 
-        foreach ($items as $item) {
-            if (strpos($item['value'], $value) !== false) {
-                return;
-            }
-        }
-
-        throw new \Exception(sprintf('Field "%s" does not contain partial text "%s"', $field, $value));
+        throw new \Exception(sprintf('Field does not contain partial text "%s", contains "%s"', $value, json_encode($field->value)));
 
     }//end assertEntityFieldValueTextLong()
 
