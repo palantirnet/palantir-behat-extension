@@ -477,12 +477,15 @@ class EntityDataContext extends SharedDrupalContext
             foreach ($entities as $entity) {
 
                 switch ($entity->getEntityTypeId()) {
+                    case 'node':
+                        $title = $entity->title->value;
+                        break;
+
                     case 'taxonomy_term':
                     case 'user':
-                        $title = $entity->name->value;
-                        break;
+                    case 'media':
                     default:
-                        $title = $entity->title->value;
+                        $title = $entity->name->value;
                         break;
                 }
 
