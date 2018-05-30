@@ -277,6 +277,9 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValue($field_name, $value)
     {
+        /**
+         * @var $field \Drupal\Core\Field\FieldItemList
+         */
         $field = $this->currentEntity->get($field_name);
 
         /**
@@ -284,7 +287,7 @@ class EntityDataContext extends SharedDrupalContext
          */
         $definition = $field->getFieldDefinition();
 
-        $field_type = $definition->get('field_type');
+        $field_type = $definition->getType();
 
         // If a method exists to handle this field type, use it.
         $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_type)));
@@ -292,7 +295,7 @@ class EntityDataContext extends SharedDrupalContext
             return $this->$method_name($field, $value);
         }
 
-        $field_value = $field->getValue();
+        $field_value = $field->value;
 
         // Special case for expecting nothing
         if ($value === 'nothing') {
