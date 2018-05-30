@@ -107,9 +107,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityPropertyValue($property, $value)
     {
-        if ($this->currentEntity->$property->value !== $value) {
-            throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
-        }
+        // Properties and fields are accessed in the same way in Drupal 8.
+        $this->assertEntityFieldValue($property, $value);
 
     }//end assertEntityPropertyValue()
 
