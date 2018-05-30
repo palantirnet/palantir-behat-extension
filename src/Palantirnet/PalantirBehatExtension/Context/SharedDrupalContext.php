@@ -38,19 +38,23 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('node');
 
-        $query = new \EntityFieldQuery();
-
-        $entities = $query->entityCondition('entity_type', 'node')
-            ->entityCondition('bundle', $contentType)
-            ->propertyCondition('title', $title)
+        $entities = $query
+            ->condition('type', $contentType)
+            ->condition('title', $title)
             ->execute();
 
-        if (empty($entities['node']) === false && count($entities['node']) === 1) {
-            $nid = key($entities['node']);
-            return node_load($nid);
-        } else if (empty($entities['node']) === false && count($entities['node']) > 1) {
+        if (count($entities) === 1) {
+            $node_storage = \Drupal::entityManager()->getStorage('node');
+
+            $nid = array_shift($entities);
+
+            return $node_storage->load($nid);
+        } else if (count($entities) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" node entitled "%s"', $contentType, $title));
         } else {
             throw new \Exception(sprintf('No "%s" node entitled "%s" exists', $contentType, $title));
