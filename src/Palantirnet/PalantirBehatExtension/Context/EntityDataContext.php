@@ -98,6 +98,33 @@ class EntityDataContext extends SharedDrupalContext
     }//end assertUserByName()
 
 
+  /**
+   * @When I examine paragraph ":fieldWeight" on the ":fieldName" field
+   *
+   * This can drill down into a paragraph on a loaded entity.
+   */
+    public function assertParagraphByWeight($fieldWeight, $fieldName)
+    {
+        if (!$this->currentEntity->hasField($fieldName)) {
+            throw new \Exception('Could not load the field');
+        }
+
+        $field = $this->currentEntity->get($fieldName);
+
+        $paragraphs = $field->referencedEntities();
+
+        if (!(is_array($paragraphs) && isset($paragraphs[$fieldWeight - 1]))){
+            throw new \Exception('Could not find the paragraph in the field.');
+        }
+
+        $paragraph = $paragraphs[$fieldWeight - 1];
+
+        $this->currentEntity = $paragraph;
+        $this->currentEntityType = 'paragraph';
+
+    }//end assertParagraphByWeight()
+
+
     /**
      * Verify that an entity property is equal to a particular value.
      *
