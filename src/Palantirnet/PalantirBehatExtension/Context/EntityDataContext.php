@@ -417,26 +417,16 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @throws \Exception
      */
-    public function assertEntityFieldValueLinkField($field, $value)
+    public function assertEntityFieldValueLink($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+      if (strpos($field->getValue()[0]['uri'], $value) !== false) {
+        return;
+      }
 
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+      throw new \Exception(sprintf('Field does not contain the url "%s", contains "%s"', $value, json_encode($field->getValue()[0]['uri'])));
 
-        $field_value = $wrapper->$field->value();
-        if (isset($field_value['url']) === true) {
-            $field_value = array($field_value);
-        }
+    }//end assertEntityFieldValueLink()
 
-        foreach ($field_value as $f) {
-            if ($f['url'] === $value) {
-                return;
-            }
-        }
-
-        throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
-
-    }//end assertEntityFieldValueLinkField()
 
 
     /**
