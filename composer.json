@@ -1,5 +1,5 @@
 {
-    "name": "palantirnet/palantir-behat-extension": "dev-feature/entity-context",
+    "name": "palantirnet/palantir-behat-extension",
     "description": "Additional step definitions for testing Drupal sites using Behat.",
     "type": "behat-extension",
     "keywords": [
