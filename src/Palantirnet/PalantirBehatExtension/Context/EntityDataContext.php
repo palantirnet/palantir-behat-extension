@@ -33,6 +33,7 @@ class EntityDataContext extends SharedDrupalContext
      */
     protected $currentEntity     = null;
     protected $currentEntityType = null;
+    protected $currentEntityLanguage = null;
 
 
     /**
@@ -53,6 +54,27 @@ class EntityDataContext extends SharedDrupalContext
         $this->currentEntityType = 'node';
 
     }//end assertNodeByTitle()
+
+    /**
+     * Verify field and property values of a node entity in a language.
+     *
+     * @When I examine the :contentType( node) with title :title in :language
+     *
+     * @param string $contentType A Drupal content type machine name.
+     * @param string $title       The title of a Drupal node.
+     * @param string $language    A language code
+     *
+     * @return void
+     */
+    public function assertNodeByTitleAndLanguage($contentType, $title, $language)
+    {
+      $node = $this->findNodeByTitle($contentType, $title, $language);
+
+      $this->currentEntity     = $node;
+      $this->currentEntityType = 'node';
+      $this->currentEntityLanguage = $language;
+
+    }//end assertNodeByTitleAndLanguage()
 
 
     /**
@@ -118,6 +140,10 @@ class EntityDataContext extends SharedDrupalContext
         }
 
         $paragraph = $paragraphs[$fieldWeight - 1];
+
+        if (isset($this->currentEntityLanguage) && $paragraph->hasTranslation($this->currentEntityLanguage)){
+          $paragraph = $paragraph->getTranslation($this->currentEntityLanguage);
+        }
 
         $this->currentEntity = $paragraph;
         $this->currentEntityType = 'paragraph';

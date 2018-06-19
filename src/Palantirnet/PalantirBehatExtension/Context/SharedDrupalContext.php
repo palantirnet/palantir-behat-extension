@@ -36,7 +36,7 @@ class SharedDrupalContext extends RawDrupalContext
      * @return stdclass
      *   The Drupal node object, if it exists.
      */
-    public function findNodeByTitle($contentType, $title)
+    public function findNodeByTitle($contentType, $title, $language = NULL)
     {
         /**
          * @var $query \Drupal\Core\Entity\Query\QueryInterface
@@ -53,7 +53,18 @@ class SharedDrupalContext extends RawDrupalContext
 
             $nid = array_shift($entities);
 
-            return $node_storage->load($nid);
+            $node = $node_storage->load($nid);
+
+            if (!is_null($language)) {
+              if ($node->hasTranslation($language)) {
+                $node = $node->getTranslation($language);
+              }
+              else {
+                throw new \Exception('The node is not available in that language.');
+              }
+            }
+
+            return $node;
         } else if (count($entities) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" node entitled "%s"', $contentType, $title));
         } else {
