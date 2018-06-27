@@ -51,6 +51,11 @@ class SharedDrupalContext extends RawDrupalContext
         if (count($entities) === 1) {
             $node_storage = \Drupal::entityManager()->getStorage('node');
 
+            // `entityQuery` will return an array of node IDs with key and
+            // value equal to the nids.
+            // Example: `[123 => '123', 456 => '456']`. For this reason, even
+            // though there is only a single element, we cannot access the
+            // first element using `$entities[0]`.
             $nid = array_shift($entities);
 
             $node = $node_storage->load($nid);

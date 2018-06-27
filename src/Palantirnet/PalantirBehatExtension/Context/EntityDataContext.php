@@ -400,7 +400,7 @@ class EntityDataContext extends SharedDrupalContext
     }//end assertNotEntityFieldValue()
 
     /**
-     * Verify that a field contains a value.
+     * Verify that a paragraph field contains a paragraph of a certain type.
      *
      * @Then paragraph field :field should be of type :type
      *
@@ -552,31 +552,21 @@ class EntityDataContext extends SharedDrupalContext
              */
             foreach ($entities as $entity) {
 
-                switch ($entity->getEntityTypeId()) {
-                    case 'node':
-                        $title = $entity->title->value;
-                        break;
-
-                    case 'paragraph':
-                        throw new \Exception('Paragraphs do not have titles, so they must be tested by a different method.');
-                        break;
-
-                    case 'taxonomy_term':
-                    case 'user':
-                    case 'media':
-                    default:
-                        $title = $entity->name->value;
-                        break;
+                if ($entity->getEntityTypeId() === 'paragraph') {
+                     throw new \Exception('Paragraphs do not have meaningful labels, so they must be tested by a different method.');
+                    // If we get a single paragraph reference, we will assume
+                    // that the rest are also paragraphs and exit the method.
+                    return;
                 }
 
-                $titles[] = $title;
+                $labels[] = $entity->label();
 
-                if ($title === $value) {
+                if ($entity->label() === $value) {
                     return;
                 }
             }
 
-            throw new \Exception(sprintf('Field does not contain entity with title "%s" (has "%s" titles instead).', $value, json_encode($titles)));
+            throw new \Exception(sprintf('Field does not contain entity with label "%s" (has "%s" labels instead).', $value, json_encode($labels)));
         }
 
         throw new \Exception('Field is empty.');
