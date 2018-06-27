@@ -36,21 +36,41 @@ class SharedDrupalContext extends RawDrupalContext
      * @return stdclass
      *   The Drupal node object, if it exists.
      */
-    public function findNodeByTitle($contentType, $title)
+    public function findNodeByTitle($contentType, $title, $language = NULL)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('node');
 
-        $query = new \EntityFieldQuery();
-
-        $entities = $query->entityCondition('entity_type', 'node')
-            ->entityCondition('bundle', $contentType)
-            ->propertyCondition('title', $title)
+        $entities = $query
+            ->condition('type', $contentType)
+            ->condition('title', $title)
             ->execute();
 
-        if (empty($entities['node']) === false && count($entities['node']) === 1) {
-            $nid = key($entities['node']);
-            return node_load($nid);
-        } else if (empty($entities['node']) === false && count($entities['node']) > 1) {
+        if (count($entities) === 1) {
+            $node_storage = \Drupal::entityManager()->getStorage('node');
+
+            // `entityQuery` will return an array of node IDs with key and
+            // value equal to the nids.
+            // Example: `[123 => '123', 456 => '456']`. For this reason, even
+            // though there is only a single element, we cannot access the
+            // first element using `$entities[0]`.
+            $nid = array_shift($entities);
+
+            $node = $node_storage->load($nid);
+
+            if (!is_null($language)) {
+              if ($node->hasTranslation($language)) {
+                $node = $node->getTranslation($language);
+              }
+              else {
+                throw new \Exception('The node is not available in that language.');
+              }
+            }
+
+            return $node;
+        } else if (count($entities) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" node entitled "%s"', $contentType, $title));
         } else {
             throw new \Exception(sprintf('No "%s" node entitled "%s" exists', $contentType, $title));

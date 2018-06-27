@@ -28,8 +28,12 @@ use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 class EntityDataContext extends SharedDrupalContext
 {
 
+    /**
+     * @var $currentEntity \Drupal\Core\Entity\EntityInterface
+     */
     protected $currentEntity     = null;
     protected $currentEntityType = null;
+    protected $currentEntityLanguage = null;
 
 
     /**
@@ -44,14 +48,33 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertNodeByTitle($contentType, $title)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $node = $this->findNodeByTitle($contentType, $title);
 
         $this->currentEntity     = $node;
         $this->currentEntityType = 'node';
 
     }//end assertNodeByTitle()
+
+    /**
+     * Verify field and property values of a node entity in a language.
+     *
+     * @When I examine the :contentType( node) with title :title in :language
+     *
+     * @param string $contentType A Drupal content type machine name.
+     * @param string $title       The title of a Drupal node.
+     * @param string $language    A language code
+     *
+     * @return void
+     */
+    public function assertNodeByTitleAndLanguage($contentType, $title, $language)
+    {
+      $node = $this->findNodeByTitle($contentType, $title, $language);
+
+      $this->currentEntity     = $node;
+      $this->currentEntityType = 'node';
+      $this->currentEntityLanguage = $language;
+
+    }//end assertNodeByTitleAndLanguage()
 
 
     /**
@@ -97,6 +120,37 @@ class EntityDataContext extends SharedDrupalContext
     }//end assertUserByName()
 
 
+  /**
+   * @When I examine paragraph ":fieldWeight" on the ":fieldName" field
+   *
+   * This can drill down into a paragraph on a loaded entity.
+   */
+    public function assertParagraphByWeight($fieldWeight, $fieldName)
+    {
+        if (!$this->currentEntity->hasField($fieldName)) {
+            throw new \Exception('Could not load the field');
+        }
+
+        $field = $this->currentEntity->get($fieldName);
+
+        $paragraphs = $field->referencedEntities();
+
+        if (!(is_array($paragraphs) && isset($paragraphs[$fieldWeight - 1]))){
+            throw new \Exception('Could not find the paragraph in the field.');
+        }
+
+        $paragraph = $paragraphs[$fieldWeight - 1];
+
+        if (isset($this->currentEntityLanguage) && $paragraph->hasTranslation($this->currentEntityLanguage)){
+          $paragraph = $paragraph->getTranslation($this->currentEntityLanguage);
+        }
+
+        $this->currentEntity = $paragraph;
+        $this->currentEntityType = 'paragraph';
+
+    }//end assertParagraphByWeight()
+
+
     /**
      * Verify that an entity property is equal to a particular value.
      *
@@ -109,12 +163,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityPropertyValue($property, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        if ($wrapper->$property->value() !== $value) {
-            throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
-        }
+        // Properties and fields are accessed in the same way in Drupal 8.
+        $this->assertEntityFieldValue($property, $value);
 
     }//end assertEntityPropertyValue()
 
@@ -276,39 +326,48 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @Then entity field :field should contain :value
      *
-     * @param string $field A Drupal field name.
+     * @param string $field_name A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @return void
      */
-    public function assertEntityFieldValue($field, $value)
+    public function assertEntityFieldValue($field_name, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        /**
+         * @var $field \Drupal\Core\Field\FieldItemList
+         */
+        $field = $this->currentEntity->get($field_name);
 
-        if (empty($field) === true || empty($value) === true) {
-            return;
-        }
+        /**
+         * @var $definition \Drupal\Core\Field\BaseFieldDefinition
+         */
+        $definition = $field->getFieldDefinition();
 
-        // Use a per-field-type test method, if it is present.
-        $field_info = field_info_field($field);
-        if (empty($field_info) === true) {
-            throw new \Exception(sprintf('Field "%s" does not exist', $field));
-        }
+        $field_type = $definition->getType();
 
-        $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_info['type'])));
+        // If a method exists to handle this field type, use it.
+        $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_type)));
         if (method_exists($this, $method_name) === true) {
             return $this->$method_name($field, $value);
         }
 
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        $field_value = $field->value;
 
-        $field_value = $wrapper->$field->value();
+        // Special case for expecting nothing
+        if ($value === 'nothing') {
+            if (!empty($field_value)) {
+                throw new \Exception(sprintf('Field "%s" has a value of "%s" and does not contain "%s"', $field_name, json_encode($field_value), $value));
+            }
+
+            return;
+        }
+
         if (is_array($field_value) === false) {
             $field_value = array($field_value);
         }
 
         if (in_array($value, $field_value) === false) {
-            throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
+            throw new \Exception(sprintf('Field "%s" has a value of "%s" and does not contain "%s"', $field_name, json_encode($field_value), $value));
         }
 
     }//end assertEntityFieldValue()
@@ -340,43 +399,66 @@ class EntityDataContext extends SharedDrupalContext
 
     }//end assertNotEntityFieldValue()
 
+    /**
+     * Verify that a paragraph field contains a paragraph of a certain type.
+     *
+     * @Then paragraph field :field should be of type :type
+     *
+     * @param string $field_name A Drupal field name.
+     * @param mixed  $type The type of paragraph.
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueParagraph($field_name, $type)
+    {
+      /**
+       * @var $field \Drupal\Core\Field\FieldItemList
+       */
+      $field = $this->currentEntity->get($field_name);
+
+      $types = [];
+
+      /**
+       * @var $entity \Drupal\paragraphs\Entity\Paragraph
+       */
+      foreach ($field->referencedEntities() as $entity) {
+          $types[] = $entity->getType();
+      }
+
+      if (!in_array($type, $types)) {
+          throw new \Exception(sprintf('Paragraph does not have type "%s", has types "%s".', $type, json_encode($types)));
+      }
+
+
+    }//end assertEntityFieldValue()
+
 
     /**
      * Test a link field for its URL value.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @return void
      *
      * @throws \Exception
      */
-    public function assertEntityFieldValueLinkField($field, $value)
+    public function assertEntityFieldValueLink($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+      if (strpos($field->getValue()[0]['uri'], $value) !== false) {
+        return;
+      }
 
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+      throw new \Exception(sprintf('Field does not contain the url "%s", contains "%s"', $value, json_encode($field->getValue()[0]['uri'])));
 
-        $field_value = $wrapper->$field->value();
-        if (isset($field_value['url']) === true) {
-            $field_value = array($field_value);
-        }
+    }//end assertEntityFieldValueLink()
 
-        foreach ($field_value as $f) {
-            if ($f['url'] === $value) {
-                return;
-            }
-        }
-
-        throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
-
-    }//end assertEntityFieldValueLinkField()
 
 
     /**
      * Test a text field for a partial string.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -385,21 +467,11 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueTextLong($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
-        $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
-
-        if ($items === false) {
-            throw new \Exception(sprintf('No field data available for "%s".', $field));
+        if (strpos($field->value, $value) !== false) {
+            return;
         }
 
-        foreach ($items as $item) {
-            if (strpos($item['value'], $value) !== false) {
-                return;
-            }
-        }
-
-        throw new \Exception(sprintf('Field "%s" does not contain partial text "%s"', $field, $value));
+        throw new \Exception(sprintf('Field does not contain partial text "%s", contains "%s"', $value, json_encode($field->value)));
 
     }//end assertEntityFieldValueTextLong()
 
@@ -407,7 +479,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test a file field for a Drupal stream wrapper URI.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -442,7 +514,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test an image field for a Drupal stream wrapper URI.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -459,45 +531,9 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
-     * Test a taxonomy term reference field for a term name.
-     *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
-     *
-     * @throws \Exception
-     *
-     * @return void
-     */
-    public function assertEntityFieldValueTaxonomyTermReference($field, $value)
-    {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-
-        if (empty($field_value) === false) {
-            // Term field values are term objects.
-            if (is_array($field_value) === false) {
-                $field_value = array($field_value);
-            }
-
-            foreach ($field_value as $term) {
-                if (is_object($term) === true && empty($term->name) === false && $term->name === $value) {
-                    return;
-                }
-            }
-        }
-
-        throw new \Exception(sprintf('Field "%s" does not contain term "%s"', $field, $value));
-
-    }//end assertEntityFieldValueTaxonomyTermReference()
-
-
-    /**
      * Test an entity reference field for an entity label.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field object.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -506,33 +542,58 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueEntityReference($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        $entities = $field->referencedEntities();
 
-        $field_info = field_info_field($field);
-        $items      = field_get_items($this->currentEntityType, $this->currentEntity, $field);
+        if (empty($entities) === false) {
+            $titles = [];
 
-        if (empty($items) === false) {
-            foreach ($items as $item) {
-                $entities = entity_load($field_info['settings']['target_type'], $item);
-                $label    = entity_label($field_info['settings']['target_type'], current($entities));
+            /**
+             * @var $entity \Drupal\Core\Entity\ContentEntityBase
+             */
+            foreach ($entities as $entity) {
 
-                if ($label === $value) {
+                if ($entity->getEntityTypeId() === 'paragraph') {
+                     throw new \Exception('Paragraphs do not have meaningful labels, so they must be tested by a different method.');
+                    // If we get a single paragraph reference, we will assume
+                    // that the rest are also paragraphs and exit the method.
+                    return;
+                }
+
+                $labels[] = $entity->label();
+
+                if ($entity->label() === $value) {
                     return;
                 }
             }
 
-            throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s" (has "%s" instead).', $field, $value, $label));
+            throw new \Exception(sprintf('Field does not contain entity with label "%s" (has "%s" labels instead).', $value, json_encode($labels)));
         }
 
-        throw new \Exception(sprintf('Field "%s" is empty.', $field));
+        throw new \Exception('Field is empty.');
 
     }//end assertEntityFieldValueEntityReference()
 
 
     /**
+     * Passes handling to the generic Entity Reference method.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field object.
+     * @param mixed  $value The value to look for.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueEntityReferenceRevisions($field, $value)
+    {
+        $this->assertEntityFieldValueEntityReference($field, $value);
+    }//end assertEntityFieldValueEntityReferenceRevisions()
+
+
+    /**
      * Test a date field for some date.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -540,52 +601,17 @@ class EntityDataContext extends SharedDrupalContext
      * @return void
      *
      * @todo : Update method to handle date fields with start and end dates
-     * The call to $wrapper->$field->value() returns either an array or a scalar
-     * because entity_metadata_wrapper() makes the date field values array
-     * unpredictable. When working with date fields that have both a start and
-     * end time, an array is returned instead of a scalar. If we want to test
-     * for start and end dates, we would want to use Behat syntax similar to
+     * If we want to test for start and end dates, we would want to use Behat syntax
      * "Then entity field ":field should contain "<start_date> - <end_date>".
-     * This method would need to be updated to handle that approach.
      */
     public function assertEntityFieldValueDatetime($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
-        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        $field_value = $wrapper->$field->value();
-
-        if (is_scalar($field_value) === true) {
-            $field_value = array($field_value);
+        if (strtotime($field->value) === strtotime($value)) {
+          return;
         }
 
-        if (is_array($field_value) === false) {
-            $field_value = array();
-        }
-
-        foreach ($field_value as $v) {
-            if (is_array($v) === true) {
-                // The value may exist as either the start date ('value') or the end
-                // date ('value2').
-                if (array_key_exists('value', $v) === true) {
-                    if (strtotime($value) === strtotime($v['value'])) {
-                        return;
-                    }
-                }
-
-                if (array_key_exists('value2', $v) === true) {
-                    if (strtotime($value) === strtotime($v['value2'])) {
-                        return;
-                    }
-                }
-            }
-
-            if (strtotime($value) === $v) {
-                return;
-            }
-        }//end foreach
-
-        throw new \Exception(sprintf('Field "%s" does not contain datetime "%s" (%s)', $field, strtotime($value), $value));
+        throw new \Exception(sprintf('Field does not contain datetime "%s" (%s), contains "%s".', strtotime($value), $value, strtotime($field->value)));
 
     }//end assertEntityFieldValueDatetime()
 
