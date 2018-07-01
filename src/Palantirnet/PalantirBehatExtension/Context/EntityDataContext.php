@@ -10,6 +10,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalDriverManager;
+use Drupal\user\Entity\Role;
 use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
@@ -106,12 +107,12 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @param string $userName The name of a Drupal user.
      *
+     * @throws \Exception if user with name $userName is not found
+     *
      * @return void
      */
     public function assertUserByName($userName)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $account = $this->findUserByName($userName);
 
         $this->currentEntity     = $account;
@@ -176,12 +177,12 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @param string $role One or more role names, separated by commas.
      *
+     * @throws \Exception if one or more role names do not exist.
+     *
      * @return void
      */
     public function assertUserHasRoles($role)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $this->assertEntityIsUser();
 
         $roles = $this->getRoles($role);
@@ -198,12 +199,12 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @param string $role One or more role names, separated by commas.
      *
+     * @throws \Exception if one or more role names do not exist.
+     *
      * @return void
      */
     public function assertNotUserHasRoles($role)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $this->assertEntityIsUser();
 
         $roles = $this->getRoles($role);
@@ -217,11 +218,11 @@ class EntityDataContext extends SharedDrupalContext
      * Verify that the current entity is a user.
      *
      * @return void
+     *
+     * @throws \Exception if current entity is not a user.
      */
     public function assertEntityIsUser()
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         if ('user' !== $this->currentEntityType) {
             throw new \Exception(sprintf('Entity is not a user.'));
         }
@@ -232,18 +233,20 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify that a user account has a set of roles.
      *
-     * @param stdclass $account A Drupal user account object.
-     * @param array    $roles   An array of Drupal role objects.
+     * @param \Drupal\Core\Entity\EntityInterface $account
+     *  A Drupal user account object.
+     * @param array $roles
+     *  An array of Drupal role objects.
+     *
+     * @throws \Exception if user does not have one ore more roles as defined in $roles
      *
      * @return void
      */
     public function assertUserRoles($account, $roles)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         foreach ($roles as $role) {
-            if (false === user_has_role($role->rid, $account)) {
-                throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->name, $role->name));
+            if (false === $account->hasRole($role->id())) {
+                throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->name(), $role->label()));
             }
         }
 
@@ -253,18 +256,20 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify that a user account does not have a set of roles.
      *
-     * @param stdclass $account A Drupal user account object.
-     * @param array    $roles   An array of Drupal role objects.
+     * @param \Drupal\Core\Entity\EntityInterface $account
+     *   A Drupal user account object.
+     * @param array $roles
+     *   An array of Drupal role objects.
+     *
+     * @throws \Exception if user does not have one ore more roles as defined in $roles
      *
      * @return void
      */
     public function assertNotUserRoles($account, $roles)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         foreach ($roles as $role) {
-            if (true === user_has_role($role->rid, $account)) {
-                throw new \Exception(sprintf('User "%s" has role "%s".', $account->name, $role->name));
+            if (true === $account->hasRole($role->id())) {
+              throw new \Exception(sprintf('User "%s" has role "%s".', $account->name(), $role->label()));
             }
         }
 
@@ -274,27 +279,36 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Get an array of role objects from a string of one or more role names.
      *
-     * @param string $roles A comma-separated list of one or more role names.
+     * @param string $role_names A comma-separated list of one or more role names.
+     *
+     * @throws \Exception if role with one or more role names as defined in $role_names
+     *   does not exist.
      *
      * @return array An array of Drupal role objects from user_role_load_by_name().
      */
-    public function getRoles($roles)
+    public function getRoles($role_names)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        $roles = array();
 
-        $role_objects = array();
-
-        $role_names = array_map('trim', explode(',', $roles));
+        // Retrieve a list of all available role names keyed by role id.
+        $r = user_role_names();
+        $role_names = array_map('trim', explode(',', $role_names));
         foreach ($role_names as $role_name) {
-            $r = user_role_load_by_name($role_name);
-            if (false === $r) {
+            $role = FALSE;
+            $rid = array_search($role_name, $r);
+
+            if ($rid) {
+              $role = Role::load($rid);
+            }
+
+            if (FALSE === $role) {
                 throw new \Exception(sprintf('Role "%s" does not exist.', $role_name));
             }
 
-            $role_objects[$r->rid] = $r;
+          $roles[$role->id()] = $role;
         }
 
-        return $role_objects;
+        return $roles;
 
     }//end getRoles()
 
@@ -439,9 +453,9 @@ class EntityDataContext extends SharedDrupalContext
      * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
-     * @return void
-     *
      * @throws \Exception
+     *
+     * @return void
      */
     public function assertEntityFieldValueLink($field, $value)
     {

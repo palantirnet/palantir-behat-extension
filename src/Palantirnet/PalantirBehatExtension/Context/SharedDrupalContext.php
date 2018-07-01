@@ -147,26 +147,34 @@ class SharedDrupalContext extends RawDrupalContext
      *
      * @param string $userName The name of a Drupal user.
      *
-     * @return stdclass
+     * @throws \Exception if user is not found.
+     * @throws \Exception if multiple user with name $userName are found.
+     *
+     * @return \Drupal\Core\Entity\EntityInterface
      *   The Drupal user object, if it exists.
      */
     public function findUserByName($userName)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('user');
 
-        $query = new \EntityFieldQuery();
+        $entities = $query
+          ->condition('name', $userName)
+          ->execute();
 
-        $entities = $query->entityCondition('entity_type', 'user')
-            ->propertyCondition('name', $userName)
-            ->execute();
+        if (count($entities) === 1) {
+          $user_storage = \Drupal::entityTypeManager()->getStorage('user');
+          $uid = array_shift($entities);
 
-        if (empty($entities['user']) === false && count($entities['user']) === 1) {
-            $id = key($entities['user']);
-            return user_load($id);
-        } else if (empty($entities['user']) === false && count($entities['user']) > 1) {
-            throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
+          $user = $user_storage->load($uid);
+
+          return $user;
+        } else if (count($entities) > 1) {
+          throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
         } else {
-            throw new \Exception(sprintf('No user named "%s" exists', $userName));
+          throw new \Exception(sprintf('No user named "%s" exists', $userName));
         }
 
     }//end findUserByName()
