@@ -161,20 +161,20 @@ class SharedDrupalContext extends RawDrupalContext
         $query = \Drupal::entityQuery('user');
 
         $entities = $query
-          ->condition('name', $userName)
-          ->execute();
+            ->condition('name', $userName)
+            ->execute();
 
         if (count($entities) === 1) {
-          $user_storage = \Drupal::entityTypeManager()->getStorage('user');
-          $uid = array_shift($entities);
+            $user_storage = \Drupal::entityTypeManager()->getStorage('user');
+            $uid = array_shift($entities);
 
-          $user = $user_storage->load($uid);
+            $user = $user_storage->load($uid);
 
-          return $user;
+            return $user;
         } else if (count($entities) > 1) {
-          throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
+            throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
         } else {
-          throw new \Exception(sprintf('No user named "%s" exists', $userName));
+            throw new \Exception(sprintf('No user named "%s" exists', $userName));
         }
 
     }//end findUserByName()

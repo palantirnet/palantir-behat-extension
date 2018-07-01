@@ -10,7 +10,6 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalDriverManager;
-use Drupal\user\Entity\Role;
 use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
@@ -32,7 +31,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * @var $currentEntity \Drupal\Core\Entity\EntityInterface
      */
-    protected $currentEntity     = null;
+    protected $currentEntity = null;
     protected $currentEntityType = null;
     protected $currentEntityLanguage = null;
 
@@ -43,7 +42,7 @@ class EntityDataContext extends SharedDrupalContext
      * @When I examine the :contentType( node) with title :title
      *
      * @param string $contentType A Drupal content type machine name.
-     * @param string $title       The title of a Drupal node.
+     * @param string $title The title of a Drupal node.
      *
      * @return void
      */
@@ -51,7 +50,7 @@ class EntityDataContext extends SharedDrupalContext
     {
         $node = $this->findNodeByTitle($contentType, $title);
 
-        $this->currentEntity     = $node;
+        $this->currentEntity = $node;
         $this->currentEntityType = 'node';
 
     }//end assertNodeByTitle()
@@ -62,18 +61,18 @@ class EntityDataContext extends SharedDrupalContext
      * @When I examine the :contentType( node) with title :title in :language
      *
      * @param string $contentType A Drupal content type machine name.
-     * @param string $title       The title of a Drupal node.
-     * @param string $language    A language code
+     * @param string $title The title of a Drupal node.
+     * @param string $language A language code
      *
      * @return void
      */
     public function assertNodeByTitleAndLanguage($contentType, $title, $language)
     {
-      $node = $this->findNodeByTitle($contentType, $title, $language);
+        $node = $this->findNodeByTitle($contentType, $title, $language);
 
-      $this->currentEntity     = $node;
-      $this->currentEntityType = 'node';
-      $this->currentEntityLanguage = $language;
+        $this->currentEntity = $node;
+        $this->currentEntityType = 'node';
+        $this->currentEntityLanguage = $language;
 
     }//end assertNodeByTitleAndLanguage()
 
@@ -115,7 +114,7 @@ class EntityDataContext extends SharedDrupalContext
     {
         $account = $this->findUserByName($userName);
 
-        $this->currentEntity     = $account;
+        $this->currentEntity = $account;
         $this->currentEntityType = 'user';
 
     }//end assertUserByName()
@@ -269,7 +268,7 @@ class EntityDataContext extends SharedDrupalContext
     {
         foreach ($roles as $role) {
             if (true === $account->hasRole($role->id())) {
-              throw new \Exception(sprintf('User "%s" has role "%s".', $account->name(), $role->label()));
+                throw new \Exception(sprintf('User "%s" has role "%s".', $account->name(), $role->label()));
             }
         }
 
@@ -298,14 +297,14 @@ class EntityDataContext extends SharedDrupalContext
             $rid = array_search($role_name, $r);
 
             if ($rid) {
-              $role = Role::load($rid);
+                $role = \Drupal\user\Entity\Role::load($rid);
             }
 
             if (FALSE === $role) {
                 throw new \Exception(sprintf('Role "%s" does not exist.', $role_name));
             }
 
-          $roles[$role->id()] = $role;
+            $roles[$role->id()] = $role;
         }
 
         return $roles;
@@ -466,7 +465,6 @@ class EntityDataContext extends SharedDrupalContext
       throw new \Exception(sprintf('Field does not contain the url "%s", contains "%s"', $value, json_encode($field->getValue()[0]['uri'])));
 
     }//end assertEntityFieldValueLink()
-
 
 
     /**
