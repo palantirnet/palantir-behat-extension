@@ -237,7 +237,7 @@ class EntityDataContext extends SharedDrupalContext
      * @param array $roles
      *  An array of Drupal role objects.
      *
-     * @throws \Exception if user does not have one ore more roles as defined in $roles
+     * @throws \Exception if user does not have one or more roles as defined in $roles
      *
      * @return void
      */
