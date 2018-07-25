@@ -61,12 +61,12 @@ class SharedDrupalContext extends RawDrupalContext
             $node = $node_storage->load($nid);
 
             if (!is_null($language)) {
-              if ($node->hasTranslation($language)) {
-                $node = $node->getTranslation($language);
-              }
-              else {
-                throw new \Exception('The node is not available in that language.');
-              }
+                if ($node->hasTranslation($language)) {
+                    $node = $node->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The node is not available in that language.');
+                }
             }
 
             return $node;
@@ -97,10 +97,10 @@ class SharedDrupalContext extends RawDrupalContext
         }
         catch (\Exception $e) {
             $new_node = (object) array(
-                                  'title' => $title,
-                                  'type'  => $contentType,
-                                  'body'  => $this->getRandom()->string(255),
-                                 );
+                'title' => $title,
+                'type'  => $contentType,
+                'body'  => $this->getRandom()->string(255),
+            );
 
             $node = $this->nodeCreate($new_node);
         }
@@ -150,8 +150,8 @@ class SharedDrupalContext extends RawDrupalContext
      * @throws \Exception if user is not found.
      * @throws \Exception if multiple user with name $userName are found.
      *
-     * @return \Drupal\Core\Entity\EntityInterface
-     *   The Drupal user object, if it exists.
+     * @return \Drupal\User\Entity\User|bool
+     *   A Drupal user object or FALSE if it does not exist.
      */
     public function findUserByName($userName)
     {
@@ -242,9 +242,9 @@ class SharedDrupalContext extends RawDrupalContext
 
         // Add default values.
         $defaults = array(
-                     'uid'    => 0,
-                     'status' => 1,
-                    );
+            'uid'    => 0,
+            'status' => 1,
+        );
 
         foreach ($defaults as $key => $default) {
             if (isset($file->$key) === false) {

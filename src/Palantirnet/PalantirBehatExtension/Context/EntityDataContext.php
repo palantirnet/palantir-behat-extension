@@ -120,11 +120,11 @@ class EntityDataContext extends SharedDrupalContext
     }//end assertUserByName()
 
 
-  /**
-   * @When I examine paragraph ":fieldWeight" on the ":fieldName" field
-   *
-   * This can drill down into a paragraph on a loaded entity.
-   */
+    /**
+     * @When I examine paragraph ":fieldWeight" on the ":fieldName" field
+     *
+     * This can drill down into a paragraph on a loaded entity.
+     */
     public function assertParagraphByWeight($fieldWeight, $fieldName)
     {
         if (!$this->currentEntity->hasField($fieldName)) {
@@ -142,7 +142,7 @@ class EntityDataContext extends SharedDrupalContext
         $paragraph = $paragraphs[$fieldWeight - 1];
 
         if (isset($this->currentEntityLanguage) && $paragraph->hasTranslation($this->currentEntityLanguage)){
-          $paragraph = $paragraph->getTranslation($this->currentEntityLanguage);
+            $paragraph = $paragraph->getTranslation($this->currentEntityLanguage);
         }
 
         $this->currentEntity = $paragraph;
@@ -232,7 +232,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify that a user account has a set of roles.
      *
-     * @param \Drupal\Core\Entity\EntityInterface $account
+     * @param \Drupal\User\Entity\User $account
      *  A Drupal user account object.
      * @param array $roles
      *  An array of Drupal role objects.
@@ -245,7 +245,7 @@ class EntityDataContext extends SharedDrupalContext
     {
         foreach ($roles as $role) {
             if (false === $account->hasRole($role->id())) {
-                throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->name(), $role->label()));
+                throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->getAccountName(), $role->label()));
             }
         }
 
@@ -255,7 +255,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify that a user account does not have a set of roles.
      *
-     * @param \Drupal\Core\Entity\EntityInterface $account
+     * @param \Drupal\User\Entity\User $account
      *   A Drupal user account object.
      * @param array $roles
      *   An array of Drupal role objects.
@@ -268,7 +268,7 @@ class EntityDataContext extends SharedDrupalContext
     {
         foreach ($roles as $role) {
             if (true === $account->hasRole($role->id())) {
-                throw new \Exception(sprintf('User "%s" has role "%s".', $account->name(), $role->label()));
+                throw new \Exception(sprintf('User "%s" has role "%s".', $account->getAccountName(), $role->label()));
             }
         }
 
@@ -424,23 +424,23 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueParagraph($field_name, $type)
     {
-      /**
-       * @var $field \Drupal\Core\Field\FieldItemList
-       */
-      $field = $this->currentEntity->get($field_name);
+        /**
+         * @var $field \Drupal\Core\Field\FieldItemList
+         */
+        $field = $this->currentEntity->get($field_name);
 
-      $types = [];
+        $types = [];
 
-      /**
-       * @var $entity \Drupal\paragraphs\Entity\Paragraph
-       */
-      foreach ($field->referencedEntities() as $entity) {
-          $types[] = $entity->getType();
-      }
+        /**
+         * @var $entity \Drupal\paragraphs\Entity\Paragraph
+         */
+        foreach ($field->referencedEntities() as $entity) {
+            $types[] = $entity->getType();
+        }
 
-      if (!in_array($type, $types)) {
-          throw new \Exception(sprintf('Paragraph does not have type "%s", has types "%s".', $type, json_encode($types)));
-      }
+        if (!in_array($type, $types)) {
+            throw new \Exception(sprintf('Paragraph does not have type "%s", has types "%s".', $type, json_encode($types)));
+        }
 
 
     }//end assertEntityFieldValue()
@@ -458,11 +458,11 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueLink($field, $value)
     {
-      if (strpos($field->getValue()[0]['uri'], $value) !== false) {
-        return;
-      }
+        if (strpos($field->getValue()[0]['uri'], $value) !== false) {
+            return;
+        }
 
-      throw new \Exception(sprintf('Field does not contain the url "%s", contains "%s"', $value, json_encode($field->getValue()[0]['uri'])));
+        throw new \Exception(sprintf('Field does not contain the url "%s", contains "%s"', $value, json_encode($field->getValue()[0]['uri'])));
 
     }//end assertEntityFieldValueLink()
 
@@ -565,7 +565,7 @@ class EntityDataContext extends SharedDrupalContext
             foreach ($entities as $entity) {
 
                 if ($entity->getEntityTypeId() === 'paragraph') {
-                     throw new \Exception('Paragraphs do not have meaningful labels, so they must be tested by a different method.');
+                    throw new \Exception('Paragraphs do not have meaningful labels, so they must be tested by a different method.');
                     // If we get a single paragraph reference, we will assume
                     // that the rest are also paragraphs and exit the method.
                     return;
@@ -620,7 +620,7 @@ class EntityDataContext extends SharedDrupalContext
     {
 
         if (strtotime($field->value) === strtotime($value)) {
-          return;
+            return;
         }
 
         throw new \Exception(sprintf('Field does not contain datetime "%s" (%s), contains "%s".', strtotime($value), $value, strtotime($field->value)));
