@@ -100,6 +100,58 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify field and property values of a block entity.
+     *
+     * @When I examine the :blockType block with info :info
+     *
+     * @param string $blockType
+     *  A Drupal block type machine name.
+     * @param string $info
+     *  The description of a Drupal block.
+     *
+     * @throws \Exception if block is not found.
+     * @throws \Exception if multiple blocks with info $info are found.
+     *
+     * @return void
+     */
+    public function assertBlockByInfo($blockType, $info)
+    {
+        $block = $this->findBlockByInfo($blockType, $info);
+
+        $this->currentEntity = $block;
+        $this->currentEntityType = 'block_content';
+
+    }//end assertBlockByInfo()
+
+    /**
+     * Verify field and property values of a block entity.
+     *
+     * @When I examine the :blockType block with info :info in :language
+     *
+     * @param string $blockType
+     *  A Drupal block type machine name.
+     * @param string $info
+     *  The info of a Drupal block.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if block is not found.
+     * @throws \Exception if multiple blocks with info $info are found.
+     *
+     * @return void
+     */
+    public function assertBlockByInfoAndLanguage($blockType, $info, $language)
+    {
+        $block = $this->findBlockByInfo($blockType, $info, $language);
+
+        $this->currentEntity = $block;
+        $this->currentEntityType = 'block_content';
+        $this->currentEntityLanguage = $language;
+
+    }//end assertBlockByInfoAndLanguage()
+
+
+    /**
      * Verify field and property values of a user entity.
      *
      * @When I examine the user :userName
