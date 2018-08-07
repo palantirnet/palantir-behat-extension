@@ -211,24 +211,6 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
-     * Verify that an entity property is equal to a particular value.
-     *
-     * @Then entity property :property should be :value
-     *
-     * @param string $property A Drupal entity property name.
-     * @param mixed  $value    The value to look for.
-     *
-     * @return void
-     */
-    public function assertEntityPropertyValue($property, $value)
-    {
-        // Properties and fields are accessed in the same way in Drupal 8.
-        $this->assertEntityFieldValue($property, $value);
-
-    }//end assertEntityPropertyValue()
-
-
-    /**
      * Verify that a user has one or more roles.
      *
      * @Then the user should have the role(s) :role
@@ -369,6 +351,26 @@ class EntityDataContext extends SharedDrupalContext
         return $roles;
 
     }//end getRoles()
+
+
+    /**
+     * Verify that an entity property is equal to a particular value.
+     *
+     * @Then entity property :property should be :value
+     *
+     * @param string $property
+     *  A Drupal entity property name.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @return void
+     */
+    public function assertEntityPropertyValue($property, $value)
+    {
+        // Properties and fields are accessed in the same way in Drupal 8.
+        $this->assertEntityFieldValue($property, $value);
+
+    }//end assertEntityPropertyValue()
 
 
     /**
@@ -548,7 +550,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify a field does not contain a particular value.
      *
-     * @Then entity field :field should not contain :value
+     * @Then entity field :field should not contain :value for property :property
      *
      * @param string
      *  $field A Drupal field name.
