@@ -30,8 +30,16 @@ class SharedDrupalContext extends RawDrupalContext
     /**
      * Get node object by its title.
      *
-     * @param string $contentType A Drupal content type machine name.
-     * @param string $title       The title of a Drupal node.
+     * @param string $contentType
+     *  A Drupal content type machine name.
+     * @param string $title
+     *  The title of a Drupal node.
+     * @param string $language
+     *  The language the node is in.
+     *
+     * @throws \Exception if no node with title $title was found.
+     * @throws \Exception if node is not available in that language.
+     * @throws \Exception if multiple nodes with title $title are found.
      *
      * @return stdclass
      *   The Drupal node object, if it exists.
