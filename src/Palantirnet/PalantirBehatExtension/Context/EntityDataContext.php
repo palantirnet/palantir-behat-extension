@@ -159,6 +159,58 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify field and property values of a media entity.
+     *
+     * @When I examine the :mediaType media with name :name
+     *
+     * @param string $mediaType
+     *  A Drupal media type machine name.
+     * @param string $name
+     *  The name of a Drupal media entity.
+     *
+     * @throws \Exception if media is not found.
+     * @throws \Exception if multiple media entities with name $name are found.
+     *
+     * @return void
+     */
+    public function assertMediaByName($mediaType, $name)
+    {
+        $media = $this->findMediaByName($mediaType, $name);
+
+        $this->currentEntity = $media;
+        $this->currentEntityType = 'media';
+
+    }//end assertMediaByName()
+
+    /**
+     * Verify field and property values of a media entity.
+     *
+     * @When I examine the :mediaType media with name :name
+     *
+     * @param string $mediaType
+     *  A Drupal media type machine name.
+     * @param string $name
+     *  The name of a Drupal media entity.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if media is not found.
+     * @throws \Exception if multiple media entities with name $name are found.
+     *
+     * @return void
+     */
+    public function assertMediaByNameAndLanguage($mediaType, $name, $language)
+    {
+        $media = $this->findMediaByName($mediaType, $name, $language);
+
+        $this->currentEntity = $media;
+        $this->currentEntityType = 'media';
+        $this->currentEntityLanguage = $language;
+
+    }//end assertMediaByNameAndLanguage()
+
+
+    /**
      * Verify field and property values of a user entity.
      *
      * @When I examine the user :userName

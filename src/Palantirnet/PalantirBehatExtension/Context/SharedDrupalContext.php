@@ -204,6 +204,59 @@ class SharedDrupalContext extends RawDrupalContext
 
 
     /**
+     * Get media object by its name.
+     *
+     * @param string $mediaType
+     *  A Drupal media type machine name.
+     * @param string $name
+     *  The name of a Drupal media entity.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if media is not found.
+     * @throws \Exception if multiple media entities with name $name are found.
+     *
+     * @return \Drupal\media\Entity\Media|bool
+     *  The Drupal media object, if it exists or FALSE.
+     */
+    public function findMediaByName($mediaType, $name, $language = NULL)
+    {
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('media');
+
+        $entities = $query
+            ->condition('type', $mediaType)
+            ->condition('info', $name)
+            ->execute();
+
+        if (count($entities) === 1) {
+            $block_storage = \Drupal::entityTypeManager()->getStorage('media');
+            $id = array_shift($entities);
+
+            $media = $block_storage->load($id);
+
+            if (!is_null($language)) {
+                if ($media->hasTranslation($language)) {
+                    $media = $media->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The media entity is not available in that language.');
+                }
+            }
+
+            return $media;
+        } else if (count($entities) > 1) {
+            throw new \Exception(sprintf('Found more than one "%s" media entity with name "%s"', $mediaType, $name));
+        } else {
+            throw new \Exception(sprintf('No "%s" media entities with name "%s" exists', $mediaType, $name));
+        }
+
+    }//end findMediaByName()
+
+
+    /**
      * Get a user object by name.
      *
      * @param string $userName The name of a Drupal user.
