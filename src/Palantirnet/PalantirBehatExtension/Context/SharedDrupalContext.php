@@ -227,7 +227,7 @@ class SharedDrupalContext extends RawDrupalContext
         $query = \Drupal::entityQuery('media');
 
         $entities = $query
-            ->condition('type', $mediaType)
+            ->condition('bundle', $mediaType)
             ->condition('info', $name)
             ->execute();
 
