@@ -185,7 +185,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify field and property values of a media entity.
      *
-     * @When I examine the :mediaType media with name :name
+     * @When I examine the :mediaType media with name :name in :language
      *
      * @param string $mediaType
      *  A Drupal media type machine name.
