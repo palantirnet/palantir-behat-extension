@@ -228,7 +228,7 @@ class SharedDrupalContext extends RawDrupalContext
 
         $entities = $query
             ->condition('bundle', $mediaType)
-            ->condition('info', $name)
+            ->condition('name', $name)
             ->execute();
 
         if (count($entities) === 1) {
