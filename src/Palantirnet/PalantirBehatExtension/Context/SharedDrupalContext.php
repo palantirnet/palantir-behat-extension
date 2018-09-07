@@ -61,12 +61,12 @@ class SharedDrupalContext extends RawDrupalContext
             $node = $node_storage->load($nid);
 
             if (!is_null($language)) {
-              if ($node->hasTranslation($language)) {
-                $node = $node->getTranslation($language);
-              }
-              else {
-                throw new \Exception('The node is not available in that language.');
-              }
+                if ($node->hasTranslation($language)) {
+                    $node = $node->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The node is not available in that language.');
+                }
             }
 
             return $node;
@@ -97,10 +97,10 @@ class SharedDrupalContext extends RawDrupalContext
         }
         catch (\Exception $e) {
             $new_node = (object) array(
-                                  'title' => $title,
-                                  'type'  => $contentType,
-                                  'body'  => $this->getRandom()->string(255),
-                                 );
+                'title' => $title,
+                'type'  => $contentType,
+                'body'  => $this->getRandom()->string(255),
+            );
 
             $node = $this->nodeCreate($new_node);
         }
@@ -147,23 +147,31 @@ class SharedDrupalContext extends RawDrupalContext
      *
      * @param string $userName The name of a Drupal user.
      *
-     * @return stdclass
-     *   The Drupal user object, if it exists.
+     * @throws \Exception if user is not found.
+     * @throws \Exception if multiple user with name $userName are found.
+     *
+     * @return \Drupal\User\Entity\User|bool
+     *   A Drupal user object or FALSE if it does not exist.
      */
     public function findUserByName($userName)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('user');
 
-        $query = new \EntityFieldQuery();
-
-        $entities = $query->entityCondition('entity_type', 'user')
-            ->propertyCondition('name', $userName)
+        $entities = $query
+            ->condition('name', $userName)
             ->execute();
 
-        if (empty($entities['user']) === false && count($entities['user']) === 1) {
-            $id = key($entities['user']);
-            return user_load($id);
-        } else if (empty($entities['user']) === false && count($entities['user']) > 1) {
+        if (count($entities) === 1) {
+            $user_storage = \Drupal::entityTypeManager()->getStorage('user');
+            $uid = array_shift($entities);
+
+            $user = $user_storage->load($uid);
+
+            return $user;
+        } else if (count($entities) > 1) {
             throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
         } else {
             throw new \Exception(sprintf('No user named "%s" exists', $userName));
@@ -234,9 +242,9 @@ class SharedDrupalContext extends RawDrupalContext
 
         // Add default values.
         $defaults = array(
-                     'uid'    => 0,
-                     'status' => 1,
-                    );
+            'uid'    => 0,
+            'status' => 1,
+        );
 
         foreach ($defaults as $key => $default) {
             if (isset($file->$key) === false) {
