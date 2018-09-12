@@ -844,6 +844,25 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Webforms act like entity reference fields. This function
+     * passes handling to the generic Entity Reference method.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueWebform($field, $value)
+    {
+        $this->assertEntityFieldValueEntityReference($field, $value);
+    }//end assertEntityFieldValueWebform()
+
+
+    /**
      * Test a date field for some date.
      *
      * @param \Drupal\Core\Field\FieldItemList $field
