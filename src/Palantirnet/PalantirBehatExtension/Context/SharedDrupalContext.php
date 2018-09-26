@@ -30,8 +30,16 @@ class SharedDrupalContext extends RawDrupalContext
     /**
      * Get node object by its title.
      *
-     * @param string $contentType A Drupal content type machine name.
-     * @param string $title       The title of a Drupal node.
+     * @param string $contentType
+     *  A Drupal content type machine name.
+     * @param string $title
+     *  The title of a Drupal node.
+     * @param string $language
+     *  The language the node is in.
+     *
+     * @throws \Exception if no node with title $title was found.
+     * @throws \Exception if node is not available in that language.
+     * @throws \Exception if multiple nodes with title $title are found.
      *
      * @return stdclass
      *   The Drupal node object, if it exists.
@@ -140,6 +148,112 @@ class SharedDrupalContext extends RawDrupalContext
         }
 
     }//end findTermByName()
+
+
+    /**
+     * Get block object by its description.
+     *
+     * @param string $blockType
+     *  A Drupal block type machine name.
+     * @param string $info
+     *  The info of a Drupal block.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if block is not found.
+     * @throws \Exception if multiple blocks with info $info are found.
+     *
+     * @return \Drupal\block_content\Entity\BlockContent|bool
+     *  The Drupal block object, if it exists or FALSE.
+     */
+    public function findBlockByInfo($blockType, $info, $language = NULL)
+    {
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('block_content');
+
+        $entities = $query
+            ->condition('type', $blockType)
+            ->condition('info', $info)
+            ->execute();
+
+        if (count($entities) === 1) {
+            $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
+            $id = array_shift($entities);
+
+            $block = $block_storage->load($id);
+
+            if (!is_null($language)) {
+                if ($block->hasTranslation($language)) {
+                    $block = $block->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The block is not available in that language.');
+                }
+            }
+
+            return $block;
+        } else if (count($entities) > 1) {
+            throw new \Exception(sprintf('Found more than one "%s" block with info "%s"', $blockType, $info));
+        } else {
+            throw new \Exception(sprintf('No "%s" blocks with info "%s" exists', $blockType, $info));
+        }
+
+    }//end findBlockByInfo()
+
+
+    /**
+     * Get media object by its name.
+     *
+     * @param string $mediaType
+     *  A Drupal media type machine name.
+     * @param string $name
+     *  The name of a Drupal media entity.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if media is not found.
+     * @throws \Exception if multiple media entities with name $name are found.
+     *
+     * @return \Drupal\media\Entity\Media|bool
+     *  The Drupal media object, if it exists or FALSE.
+     */
+    public function findMediaByName($mediaType, $name, $language = NULL)
+    {
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('media');
+
+        $entities = $query
+            ->condition('bundle', $mediaType)
+            ->condition('name', $name)
+            ->execute();
+
+        if (count($entities) === 1) {
+            $block_storage = \Drupal::entityTypeManager()->getStorage('media');
+            $id = array_shift($entities);
+
+            $media = $block_storage->load($id);
+
+            if (!is_null($language)) {
+                if ($media->hasTranslation($language)) {
+                    $media = $media->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The media entity is not available in that language.');
+                }
+            }
+
+            return $media;
+        } else if (count($entities) > 1) {
+            throw new \Exception(sprintf('Found more than one "%s" media entity with name "%s"', $mediaType, $name));
+        } else {
+            throw new \Exception(sprintf('No "%s" media entities with name "%s" exists', $mediaType, $name));
+        }
+
+    }//end findMediaByName()
 
 
     /**
