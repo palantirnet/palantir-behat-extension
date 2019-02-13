@@ -686,6 +686,23 @@ class EntityDataContext extends SharedDrupalContext
 
     }//end assertEntityFieldValueLink()
 
+    /**
+     * Test a text field for a partial string.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception when value was not found.
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueTextWithSummary($field, $value)
+    {
+        // Re-use the assertEntityFieldVallueTextLong for now.
+        return $this->assertEntityFieldValueTextLong($field, $value);
+    }
 
     /**
      * Test a text field for a partial string.
@@ -722,6 +739,8 @@ class EntityDataContext extends SharedDrupalContext
                 return;
             }
         }
+
+        throw new \Exception(sprintf('Field value of "%s" does not contain expected value "%s"', $field_value, $value));
     }//end assertEntityFieldValueTextLong()
 
 
