@@ -124,30 +124,67 @@ class SharedDrupalContext extends RawDrupalContext
      * @param string $termName   A Drupal taxonomy term name.
      * @param string $vocabulary The machine name of a Drupal taxonomy vocabulary.
      *
-     * @return stdclass
+     * @return Drupal\taxonomy\TermInterface
      *   The Drupal term object, if it exists.
      */
     public function findTermByName($termName, $vocabulary)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('taxonomy_term');
 
-        $query = new \EntityFieldQuery();
-
-        $entities = $query->entityCondition('entity_type', 'taxonomy_term')
-            ->entityCondition('bundle', $vocabulary)
-            ->propertyCondition('name', $termName)
+        $entities = $query
+            ->condition('name', $termName)
             ->execute();
 
-        if (empty($entities['taxonomy_term']) === false && count($entities['taxonomy_term']) === 1) {
-            $id = key($entities['taxonomy_term']);
-            return taxonomy_term_load($id);
-        } else if (empty($entities['taxonomy_term']) === false && count($entities['taxonomy_term']) > 1) {
-            throw new \Exception(sprintf('Found more than one "%s" term entitled "%s"', $vocabulary, $termName));
-        } else {
-            throw new \Exception(sprintf('No "%s" term entitled "%s" exists', $vocabulary, $termName));
-        }
+        if (count($entities) === 1) {
+            $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+            $tid = array_shift($entities);
 
+            $term = $term_storage->load($tid);
+
+            return $term;
+        } else if (count($entities) > 1) {
+            throw new \Exception(sprintf('Found more than one term with name "%s"', $termName));
+        } else {
+            throw new \Exception(sprintf('No term with name "%s" exists', $termName));
+        }
     }//end findTermByName()
+
+    /**
+     * Get a term object by machine name and vocabulary.
+     *
+     * @param string $machineName   A Drupal taxonomy term machine name.
+     * @param string $vocabulary The machine name of a Drupal taxonomy vocabulary.
+     *
+     * @return Drupal\taxonomy\TermInterface
+     *   The Drupal term object, if it exists.
+     */
+    public function findTermByMachineName($machineName, $vocabulary)
+    {
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('taxonomy_term');
+
+        $entities = $query
+            ->condition('machine_name', $machineName)
+            ->execute();
+
+        if (count($entities) === 1) {
+            $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+            $tid = array_shift($entities);
+
+            $term = $term_storage->load($tid);
+
+            return $term;
+        } else if (count($entities) > 1) {
+            throw new \Exception(sprintf('Found more than one term with machine name "%s"', $machineName));
+        } else {
+            throw new \Exception(sprintf('No term with machine name "%s" exists', $machineName));
+        }
+    }//end findTermByMachineName()
 
 
     /**

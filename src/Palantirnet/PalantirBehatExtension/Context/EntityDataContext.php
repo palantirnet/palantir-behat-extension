@@ -89,16 +89,38 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @When I examine the :termName term in the :vocabulary( vocabulary)
      *
-     * @param string $termName   A Drupal taxonomy term name.
+     * @param string $termName A Drupal taxonomy term name.
      * @param string $vocabulary The machine name of a Drupal taxonomy vocabulary.
+     *
+     * @throws \Exception
      *
      * @return void
      */
     public function assertTermByName($termName, $vocabulary)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $term = $this->findTermByName($termName, $vocabulary);
+
+        $this->currentEntity     = $term;
+        $this->currentEntityType = 'taxonomy_term';
+
+    }//end assertTermByName()
+
+
+    /**
+     * Verify field and property values of a taxonomy term entity.
+     *
+     * @When I examine the term with machine name :machineName in the :vocabulary( vocabulary)
+     *
+     * @param string $machineName A Drupal taxonomy term machine name.
+     * @param string $vocabulary The machine name of a Drupal taxonomy vocabulary.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertTermByMachineName($machineName, $vocabulary)
+    {
+        $term = $this->findTermByMachineName($machineName, $vocabulary);
 
         $this->currentEntity     = $term;
         $this->currentEntityType = 'taxonomy_term';
