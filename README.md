@@ -3,10 +3,13 @@
 The Palantir Behat Drupal Extension provides additional step definitions for testing Drupal sites using [Behat](http://behat.org),
 [Mink Extension](https://github.com/Behat/MinkExtension).
 
+## Drupal 8
+
+Drupal 8 is supported using the `drupal8` branch, but all of the available steps and methods currently throw a `NotUpdatedException`. Please update them as you need them for your projects!
+
 ## Drupal 7
 
-Drupal 7 is supported using the `master` branch. If you're working on a Drupal 8 project, you need to switch to the `drupal8` branch.
-
+Drupal 7 is supported using the `master` branch.
 
 ## What can I do with this?
 
@@ -42,7 +45,7 @@ First, add this package to your `composer.json` file:
         }
     ],
     "require-dev": {
-        "palantirnet/palantir-behat-extension": "dev-master"
+        "palantirnet/palantir-behat-extension": "dev-drupal8"
     },
 ```
 

@@ -8,6 +8,7 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Behat\Gherkin\Node\TableNode;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context class with additional file-related steps.
@@ -28,6 +29,8 @@ class DrupalFileContext extends SharedDrupalContext
      */
     public function createFile($filename, $status = 1)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $file = (object) array(
                           'filename' => $filename,
                           'status'   => $status,
@@ -57,6 +60,8 @@ class DrupalFileContext extends SharedDrupalContext
      */
     public function createFiles(TableNode $filesTable)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         foreach ($filesTable->getHash() as $fileHash) {
             $file = (object) $fileHash;
             $file = $this->expandFile($file);

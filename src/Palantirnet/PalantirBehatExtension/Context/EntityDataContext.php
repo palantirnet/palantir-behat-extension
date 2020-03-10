@@ -10,6 +10,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalDriverManager;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context class with steps to examine entity property and field data.
@@ -21,14 +22,18 @@ use Drupal\DrupalDriverManager;
  *   When I examine the "page" node with title "My Test Page"
  *   Then entity property "status" should be "1"
  *   And entity field "field_example" should contain "Example value"
- *   And entity link field "field_example_link" url should contain "http://example.com"
+ *   And entity field "field_example_link" should contain "http://example.com" for property "uri"
  *   And I dump the contents of "field_example_link"
  */
 class EntityDataContext extends SharedDrupalContext
 {
 
-    protected $currentEntity     = null;
+    /**
+     * @var $currentEntity \Drupal\Core\Entity\EntityInterface
+     */
+    protected $currentEntity = null;
     protected $currentEntityType = null;
+    protected $currentEntityLanguage = null;
 
 
     /**
@@ -37,7 +42,10 @@ class EntityDataContext extends SharedDrupalContext
      * @When I examine the :contentType( node) with title :title
      *
      * @param string $contentType A Drupal content type machine name.
-     * @param string $title       The title of a Drupal node.
+     * @param string $title The title of a Drupal node.
+     *
+     * @throws \Exception if no node with title $title was found.
+     * @throws \Exception if multiple nodes with title $title are found.
      *
      * @return void
      */
@@ -45,10 +53,35 @@ class EntityDataContext extends SharedDrupalContext
     {
         $node = $this->findNodeByTitle($contentType, $title);
 
-        $this->currentEntity     = $node;
+        $this->currentEntity = $node;
         $this->currentEntityType = 'node';
 
     }//end assertNodeByTitle()
+
+    /**
+     * Verify field and property values of a node entity in a language.
+     *
+     * @When I examine the :contentType( node) with title :title in :language
+     *
+     * @param string $contentType A Drupal content type machine name.
+     * @param string $title The title of a Drupal node.
+     * @param string $language A language code
+     *
+     * @throws \Exception if no node with title $title was found.
+     * @throws \Exception if node is not available in that language.
+     * @throws \Exception if multiple nodes with title $title are found.
+     *
+     * @return void
+     */
+    public function assertNodeByTitleAndLanguage($contentType, $title, $language)
+    {
+        $node = $this->findNodeByTitle($contentType, $title, $language);
+
+        $this->currentEntity = $node;
+        $this->currentEntityType = 'node';
+        $this->currentEntityLanguage = $language;
+
+    }//end assertNodeByTitleAndLanguage()
 
 
     /**
@@ -63,6 +96,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertTermByName($termName, $vocabulary)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $term = $this->findTermByName($termName, $vocabulary);
 
         $this->currentEntity     = $term;
@@ -72,11 +107,117 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
+     * Verify field and property values of a block entity.
+     *
+     * @When I examine the :blockType block with info :info
+     *
+     * @param string $blockType
+     *  A Drupal block type machine name.
+     * @param string $info
+     *  The description of a Drupal block.
+     *
+     * @throws \Exception if block is not found.
+     * @throws \Exception if multiple blocks with info $info are found.
+     *
+     * @return void
+     */
+    public function assertBlockByInfo($blockType, $info)
+    {
+        $block = $this->findBlockByInfo($blockType, $info);
+
+        $this->currentEntity = $block;
+        $this->currentEntityType = 'block_content';
+
+    }//end assertBlockByInfo()
+
+    /**
+     * Verify field and property values of a block entity.
+     *
+     * @When I examine the :blockType block with info :info in :language
+     *
+     * @param string $blockType
+     *  A Drupal block type machine name.
+     * @param string $info
+     *  The info of a Drupal block.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if block is not found.
+     * @throws \Exception if multiple blocks with info $info are found.
+     *
+     * @return void
+     */
+    public function assertBlockByInfoAndLanguage($blockType, $info, $language)
+    {
+        $block = $this->findBlockByInfo($blockType, $info, $language);
+
+        $this->currentEntity = $block;
+        $this->currentEntityType = 'block_content';
+        $this->currentEntityLanguage = $language;
+
+    }//end assertBlockByInfoAndLanguage()
+
+
+    /**
+     * Verify field and property values of a media entity.
+     *
+     * @When I examine the :mediaType media with name :name
+     *
+     * @param string $mediaType
+     *  A Drupal media type machine name.
+     * @param string $name
+     *  The name of a Drupal media entity.
+     *
+     * @throws \Exception if media is not found.
+     * @throws \Exception if multiple media entities with name $name are found.
+     *
+     * @return void
+     */
+    public function assertMediaByName($mediaType, $name)
+    {
+        $media = $this->findMediaByName($mediaType, $name);
+
+        $this->currentEntity = $media;
+        $this->currentEntityType = 'media';
+
+    }//end assertMediaByName()
+
+    /**
+     * Verify field and property values of a media entity.
+     *
+     * @When I examine the :mediaType media with name :name in :language
+     *
+     * @param string $mediaType
+     *  A Drupal media type machine name.
+     * @param string $name
+     *  The name of a Drupal media entity.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if media is not found.
+     * @throws \Exception if multiple media entities with name $name are found.
+     *
+     * @return void
+     */
+    public function assertMediaByNameAndLanguage($mediaType, $name, $language)
+    {
+        $media = $this->findMediaByName($mediaType, $name, $language);
+
+        $this->currentEntity = $media;
+        $this->currentEntityType = 'media';
+        $this->currentEntityLanguage = $language;
+
+    }//end assertMediaByNameAndLanguage()
+
+
+    /**
      * Verify field and property values of a user entity.
      *
      * @When I examine the user :userName
      *
      * @param string $userName The name of a Drupal user.
+     *
+     * @throws \Exception if user with name $userName is not found
      *
      * @return void
      */
@@ -84,30 +225,41 @@ class EntityDataContext extends SharedDrupalContext
     {
         $account = $this->findUserByName($userName);
 
-        $this->currentEntity     = $account;
+        $this->currentEntity = $account;
         $this->currentEntityType = 'user';
 
     }//end assertUserByName()
 
 
     /**
-     * Verify that an entity property is equal to a particular value.
+     * @When I examine paragraph ":fieldWeight" on the ":fieldName" field
      *
-     * @Then entity property :property should be :value
-     *
-     * @param string $property A Drupal entity property name.
-     * @param mixed  $value    The value to look for.
-     *
-     * @return void
+     * This can drill down into a paragraph on a loaded entity.
      */
-    public function assertEntityPropertyValue($property, $value)
+    public function assertParagraphByWeight($fieldWeight, $fieldName)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        if ($wrapper->$property->value() !== $value) {
-            throw new \Exception(sprintf('Property "%s" is not "%s"', $property, $value));
+        if (!$this->currentEntity->hasField($fieldName)) {
+            throw new \Exception('Could not load the field');
         }
 
-    }//end assertEntityPropertyValue()
+        $field = $this->currentEntity->get($fieldName);
+
+        $paragraphs = $field->referencedEntities();
+
+        if (!(is_array($paragraphs) && isset($paragraphs[$fieldWeight - 1]))){
+            throw new \Exception('Could not find the paragraph in the field.');
+        }
+
+        $paragraph = $paragraphs[$fieldWeight - 1];
+
+        if (isset($this->currentEntityLanguage) && $paragraph->hasTranslation($this->currentEntityLanguage)){
+            $paragraph = $paragraph->getTranslation($this->currentEntityLanguage);
+        }
+
+        $this->currentEntity = $paragraph;
+        $this->currentEntityType = 'paragraph';
+
+    }//end assertParagraphByWeight()
 
 
     /**
@@ -116,6 +268,8 @@ class EntityDataContext extends SharedDrupalContext
      * @Then the user should have the role(s) :role
      *
      * @param string $role One or more role names, separated by commas.
+     *
+     * @throws \Exception if one or more role names do not exist.
      *
      * @return void
      */
@@ -137,6 +291,8 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @param string $role One or more role names, separated by commas.
      *
+     * @throws \Exception if one or more role names do not exist.
+     *
      * @return void
      */
     public function assertNotUserHasRoles($role)
@@ -154,6 +310,8 @@ class EntityDataContext extends SharedDrupalContext
      * Verify that the current entity is a user.
      *
      * @return void
+     *
+     * @throws \Exception if current entity is not a user.
      */
     public function assertEntityIsUser()
     {
@@ -167,16 +325,20 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify that a user account has a set of roles.
      *
-     * @param stdclass $account A Drupal user account object.
-     * @param array    $roles   An array of Drupal role objects.
+     * @param \Drupal\User\Entity\User $account
+     *  A Drupal user account object.
+     * @param array $roles
+     *  An array of Drupal role objects.
+     *
+     * @throws \Exception if user does not have one or more roles as defined in $roles
      *
      * @return void
      */
     public function assertUserRoles($account, $roles)
     {
         foreach ($roles as $role) {
-            if (false === user_has_role($role->rid, $account)) {
-                throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->name, $role->name));
+            if (false === $account->hasRole($role->id())) {
+                throw new \Exception(sprintf('User "%s" does not have role "%s".', $account->getAccountName(), $role->label()));
             }
         }
 
@@ -186,16 +348,20 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Verify that a user account does not have a set of roles.
      *
-     * @param stdclass $account A Drupal user account object.
-     * @param array    $roles   An array of Drupal role objects.
+     * @param \Drupal\User\Entity\User $account
+     *   A Drupal user account object.
+     * @param array $roles
+     *   An array of Drupal role objects.
+     *
+     * @throws \Exception if user does not have one ore more roles as defined in $roles
      *
      * @return void
      */
     public function assertNotUserRoles($account, $roles)
     {
         foreach ($roles as $role) {
-            if (true === user_has_role($role->rid, $account)) {
-                throw new \Exception(sprintf('User "%s" has role "%s".', $account->name, $role->name));
+            if (true === $account->hasRole($role->id())) {
+                throw new \Exception(sprintf('User "%s" has role "%s".', $account->getAccountName(), $role->label()));
             }
         }
 
@@ -205,47 +371,58 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Get an array of role objects from a string of one or more role names.
      *
-     * @param string $roles A comma-separated list of one or more role names.
+     * @param string $role_names A comma-separated list of one or more role names.
+     *
+     * @throws \Exception if role with one or more role names as defined in $role_names
+     *   does not exist.
      *
      * @return array An array of Drupal role objects from user_role_load_by_name().
      */
-    public function getRoles($roles)
+    public function getRoles($role_names)
     {
-        $role_objects = array();
+        $roles = array();
 
-        $role_names = array_map('trim', explode(',', $roles));
+        // Retrieve a list of all available role names keyed by role id.
+        $r = user_role_names();
+        $role_names = array_map('trim', explode(',', $role_names));
         foreach ($role_names as $role_name) {
-            $r = user_role_load_by_name($role_name);
-            if (false === $r) {
+            $role = FALSE;
+            $rid = array_search($role_name, $r);
+
+            if ($rid) {
+                $role = \Drupal\user\Entity\Role::load($rid);
+            }
+
+            if (FALSE === $role) {
                 throw new \Exception(sprintf('Role "%s" does not exist.', $role_name));
             }
 
-            $role_objects[$r->rid] = $r;
+            $roles[$role->id()] = $role;
         }
 
-        return $role_objects;
+        return $roles;
 
     }//end getRoles()
 
 
     /**
-     * Verify that an entity property is not equal to a particular value.
+     * Verify that an entity property is equal to a particular value.
      *
-     * @Then entity property :property should not be :value
+     * @Then entity property :property should be :value
      *
-     * @param string $property A Drupal entity property name.
-     * @param mixed  $value    The value to look for.
+     * @param string $property
+     *  A Drupal entity property name.
+     * @param mixed $value
+     *  The value to look for.
      *
      * @return void
      */
-    public function assertNotEntityPropertyValue($property, $value)
+    public function assertEntityPropertyValue($property, $value)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        if ($wrapper->$property->value() === $value) {
-            throw new \Exception(sprintf('Property "%s" is "%s"', $property, $value));
-        }
+        // Properties and fields are accessed in the same way in Drupal 8.
+        $this->assertEntityFieldValue($property, $value);
 
-    }//end assertNotEntityPropertyValue()
+    }//end assertEntityPropertyValue()
 
 
     /**
@@ -253,40 +430,144 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @Then entity field :field should contain :value
      *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
+     * @param string $field_name
+     *  A Drupal field name.
+     * @param mixed  $value
+     *  The value to look for.
+     *
+     * @throws \Exception if field does not contain value.
      *
      * @return void
      */
-    public function assertEntityFieldValue($field, $value)
+    public function assertEntityFieldValue($field_name, $value)
     {
-        if (empty($field) === true || empty($value) === true) {
-            return;
-        }
+        /**
+         * @var $field \Drupal\Core\Field\FieldItemList
+         */
+        $field = $this->currentEntity->get($field_name);
 
-        // Use a per-field-type test method, if it is present.
-        $field_info = field_info_field($field);
-        if (empty($field_info) === true) {
-            throw new \Exception(sprintf('Field "%s" does not exist', $field));
-        }
+        /**
+         * @var $definition \Drupal\Core\Field\BaseFieldDefinition
+         */
+        $definition = $field->getFieldDefinition();
 
-        $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_info['type'])));
+        $field_type = $definition->getType();
+
+        // If a method exists to handle the this field type, use it.
+        $method_name = 'assertEntityFieldValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_type)));
+
         if (method_exists($this, $method_name) === true) {
             return $this->$method_name($field, $value);
         }
 
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-        if (is_array($field_value) === false) {
-            $field_value = array($field_value);
-        }
-
-        if (in_array($value, $field_value) === false) {
-            throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
-        }
-
+        $this->assertEntityFieldHasPropertyValue($field, $value);
+        return;
     }//end assertEntityFieldValue()
+
+
+    /**
+     * Verify that a field property contains a value.
+     *
+     * @Then entity field :field should contain :value for property :property
+     *
+     * @param string $field_name
+     *  A Drupal field name.
+     * @param mixed  $value
+     *  The value to look for.
+     * @param string $property
+     *  The field property.
+     *
+     * @throws \Exception if field does not contain value.
+     *
+     * @return void
+     */
+    public function assertEntityFieldPropertyValue($field_name, $value, $property)
+    {
+        /**
+         * @var $field \Drupal\Core\Field\FieldItemList
+         */
+        $field = $this->currentEntity->get($field_name);
+
+        /**
+         * @var $definition \Drupal\Core\Field\BaseFieldDefinition
+         */
+        $definition = $field->getFieldDefinition();
+
+        $field_type = $definition->getType();
+
+        // If a method exists to handle the property for this field type, use it.
+        $method_name = 'assertEntityFieldPropertyValue'.str_replace(' ', '', ucwords(str_replace('_', ' ', $field_type)));
+
+        if (method_exists($this, $method_name) === true) {
+            return $this->$method_name($field, $value, $property);
+        }
+
+        $this->assertEntityFieldHasPropertyValue($field, $value, $property);
+
+    }//end assertEntityFieldPropertyValue()
+
+    /**
+     * For a given field - and optional field property - check if a value is
+     * present.
+     *
+     * @param $field
+     *  A Drupal field object.
+     * @param $value
+     *  The value to look for.
+     * @param $property
+     *  The field property to look in.
+     *
+     * @throws \Exception if field does not contain value.
+     */
+    private function assertEntityFieldHasPropertyValue($field, $value, $property = 'value') {
+        // Check if the provided value matches any of the field values - if no
+        // property is defined, use the default `value`.
+        $field_values = array_map(function ($field_value) use ($property) {
+            return $field_value[$property];
+        }, $field->getValue());
+
+        // Special case for expecting nothing.
+        if ($value === 'nothing') {
+            if (!empty($field_values)) {
+                throw new \Exception(sprintf('Field "%s" has a "%s" of "%s" and does not contain "%s"', $field->getName(), $property, json_encode($field_values), $value));
+            }
+
+            return;
+        }
+
+        if (in_array($value, $field_values) === false) {
+            throw new \Exception(sprintf('Field "%s" has a "%s" of "%s" and does not contain "%s"', $field->getName(), $property, json_encode($field_values), $value));
+        }
+    }
+
+
+    /**
+     * Verify that an entity property is not equal to a particular value.
+     *
+     * @Then entity property :property should not be :value
+     *
+     * @param string $property
+     *  A Drupal entity property name.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception if field does contain value.
+     *
+     * @return void
+     */
+    public function assertNotEntityPropertyValue($property, $value)
+    {
+        try {
+            $this->assertEntityPropertyValue($property, $value);
+        }
+        catch (\Exception $e) {
+            // Ignore the exception and return, since we're looking for NOT.
+            return;
+        }
+
+        throw new \Exception(sprintf('Field "%s" contains "%s"', $field, $value));
+
+    }//end assertNotEntityPropertyValue()
 
 
     /**
@@ -294,8 +575,12 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @Then entity field :field should not contain :value
      *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
+     * @param string
+     *  $field A Drupal field name.
+     * @param mixed
+     *  $value The value to look for.
+     *
+     * @throws \Exception if field does not contain value.
      *
      * @return void
      */
@@ -315,68 +600,154 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
-     * Test a link field for its URL value.
+     * Verify a field does not contain a particular value.
      *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
+     * @Then entity field :field should not contain :value for property :property
+     *
+     * @param string
+     *  $field A Drupal field name.
+     * @param mixed
+     *  $value The value to look for.
+     * @param $property
+     *  The field property to look in.
+     *
+     * @throws \Exception if field does not contain value.
      *
      * @return void
-     *
-     * @throws \Exception
      */
-    public function assertEntityFieldValueLinkField($field, $value)
+    public function assertNotEntityFieldPropertyValue($field, $value, $property)
     {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-        if (isset($field_value['url']) === true) {
-            $field_value = array($field_value);
+        try {
+            $this->assertEntityFieldPropertyValue($field, $value, $property);
+        }
+        catch (\Exception $e) {
+            // Ignore the exception and return, since we're looking for NOT.
+            return;
         }
 
-        foreach ($field_value as $f) {
-            if ($f['url'] === $value) {
-                return;
-            }
+        throw new \Exception(sprintf('Field "%s" for property "%s" contains "%s"', $field, $property, $value));
+
+    }//end assertNotEntityFieldPropertyValue()
+
+
+    /**
+     * Verify that a paragraph field contains a paragraph of a certain type.
+     *
+     * @Then paragraph field :field should be of type :type
+     *
+     * @param string $field_name
+     *  A Drupal field name.
+     * @param mixed $type
+     *  The type of paragraph.
+     *
+     * @throws \Exception if Paragraph does not contain a bundle of a certain type.
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueParagraph($field_name, $type)
+    {
+        /**
+         * @var $field \Drupal\Core\Field\FieldItemList
+         */
+        $field = $this->currentEntity->get($field_name);
+
+        $types = [];
+
+        /**
+         * @var $entity \Drupal\paragraphs\Entity\Paragraph
+         */
+        foreach ($field->referencedEntities() as $entity) {
+            $types[] = $entity->getType();
         }
 
-        throw new \Exception(sprintf('Field "%s" does not contain "%s"', $field, $value));
+        if (!in_array($type, $types)) {
+            throw new \Exception(sprintf('Paragraph does not have type "%s", has types "%s".', $type, json_encode($types)));
+        }
 
-    }//end assertEntityFieldValueLinkField()
+    }//end assertEntityFieldValueParagraph()
 
+
+    /**
+     * Test a link field for its URL value.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception when url was not found
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueLink($field, $value)
+    {
+        // Check if the provided value matches any of the field values.
+        $this->assertEntityFieldHasPropertyValue($field, $value, 'uri');
+
+    }//end assertEntityFieldValueLink()
 
     /**
      * Test a text field for a partial string.
      *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
      *
-     * @throws \Exception
+     * @throws \Exception when value was not found.
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueTextWithSummary($field, $value)
+    {
+        // Re-use the assertEntityFieldVallueTextLong for now.
+        return $this->assertEntityFieldValueTextLong($field, $value);
+    }
+
+    /**
+     * Test a text field for a partial string.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception when value was not found.
      *
      * @return void
      */
     public function assertEntityFieldValueTextLong($field, $value)
     {
-        $items = field_get_items($this->currentEntityType, $this->currentEntity, $field);
+        $property = 'value';
+        // Filter out property values - default to 'uri' if property is not defined.
+        $field_values = array_map(function ($field_value) use ($property) {
+            return $field_value[$property];
+        }, $field->getValue());
 
-        if ($items === false) {
-            throw new \Exception(sprintf('No field data available for "%s".', $field));
+        // Special case for expecting nothing
+        if ($value === 'nothing') {
+            if (!empty($field_values)) {
+                throw new \Exception(sprintf('Field "%s" has a "%s" of "%s" and does not contain "%s"', $field_name, $property, json_encode($field_value), $value));
+            }
+
+            return;
         }
 
-        foreach ($items as $item) {
-            if (strpos($item['value'], $value) !== false) {
+        // Iterate over all field values and do a partial string comparison.
+        foreach ($field_values as $field_value) {
+            if (strpos($field_value, $value) !== false) {
                 return;
             }
         }
 
-        throw new \Exception(sprintf('Field "%s" does not contain partial text "%s"', $field, $value));
-
+        throw new \Exception(sprintf('Field value of "%s" does not contain expected value "%s"', $field_value, $value));
     }//end assertEntityFieldValueTextLong()
 
 
     /**
      * Test a file field for a Drupal stream wrapper URI.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -385,6 +756,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueFile($field, $value)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
 
         $field_value = $wrapper->$field->value();
@@ -409,7 +782,7 @@ class EntityDataContext extends SharedDrupalContext
     /**
      * Test an image field for a Drupal stream wrapper URI.
      *
-     * @param string $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -418,50 +791,20 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueImage($field, $value)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $this->assertEntityFieldValueFile($field, $value);
 
     }//end assertEntityFieldValueImage()
 
 
     /**
-     * Test a taxonomy term reference field for a term name.
-     *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
-     *
-     * @throws \Exception
-     *
-     * @return void
-     */
-    public function assertEntityFieldValueTaxonomyTermReference($field, $value)
-    {
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-
-        $field_value = $wrapper->$field->value();
-
-        if (empty($field_value) === false) {
-            // Term field values are term objects.
-            if (is_array($field_value) === false) {
-                $field_value = array($field_value);
-            }
-
-            foreach ($field_value as $term) {
-                if (is_object($term) === true && empty($term->name) === false && $term->name === $value) {
-                    return;
-                }
-            }
-        }
-
-        throw new \Exception(sprintf('Field "%s" does not contain term "%s"', $field, $value));
-
-    }//end assertEntityFieldValueTaxonomyTermReference()
-
-
-    /**
      * Test an entity reference field for an entity label.
      *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
      *
      * @throws \Exception
      *
@@ -469,82 +812,99 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueEntityReference($field, $value)
     {
-        $field_info = field_info_field($field);
-        $items      = field_get_items($this->currentEntityType, $this->currentEntity, $field);
+        $entities = $field->referencedEntities();
 
-        if (empty($items) === false) {
-            foreach ($items as $item) {
-                $entities = entity_load($field_info['settings']['target_type'], $item);
-                $label    = entity_label($field_info['settings']['target_type'], current($entities));
+        if (empty($entities) === false) {
+            $titles = [];
 
-                if ($label === $value) {
+            /**
+             * @var $entity \Drupal\Core\Entity\ContentEntityBase
+             */
+            foreach ($entities as $entity) {
+
+                if ($entity->getEntityTypeId() === 'paragraph') {
+                    throw new \Exception('Paragraphs do not have meaningful labels, so they must be tested by a different method.');
+                    // If we get a single paragraph reference, we will assume
+                    // that the rest are also paragraphs and exit the method.
+                    return;
+                }
+
+                $labels[] = $entity->label();
+
+                if ($entity->label() === $value) {
                     return;
                 }
             }
 
-            throw new \Exception(sprintf('Field "%s" does not contain entity with label "%s" (has "%s" instead).', $field, $value, $label));
+            throw new \Exception(sprintf('Field does not contain entity with label "%s" (has "%s" labels instead).', $value, json_encode($labels)));
         }
 
-        throw new \Exception(sprintf('Field "%s" is empty.', $field));
+        throw new \Exception('Field is empty.');
 
     }//end assertEntityFieldValueEntityReference()
 
 
     /**
+     * Passes handling to the generic Entity Reference method.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueEntityReferenceRevisions($field, $value)
+    {
+        $this->assertEntityFieldValueEntityReference($field, $value);
+    }//end assertEntityFieldValueEntityReferenceRevisions()
+
+
+    /**
+     * Webforms act like entity reference fields. This function
+     * passes handling to the generic Entity Reference method.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueWebform($field, $value)
+    {
+        $this->assertEntityFieldValueEntityReference($field, $value);
+    }//end assertEntityFieldValueWebform()
+
+
+    /**
      * Test a date field for some date.
      *
-     * @param string $field A Drupal field name.
-     * @param mixed  $value The value to look for.
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field name.
+     * @param mixed $value
+     *  The value to look for.
      *
      * @throws \Exception
      *
      * @return void
      *
      * @todo : Update method to handle date fields with start and end dates
-     * The call to $wrapper->$field->value() returns either an array or a scalar
-     * because entity_metadata_wrapper() makes the date field values array
-     * unpredictable. When working with date fields that have both a start and
-     * end time, an array is returned instead of a scalar. If we want to test
-     * for start and end dates, we would want to use Behat syntax similar to
+     * If we want to test for start and end dates, we would want to use Behat syntax
      * "Then entity field ":field should contain "<start_date> - <end_date>".
-     * This method would need to be updated to handle that approach.
      */
     public function assertEntityFieldValueDatetime($field, $value)
     {
-        $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
-        $field_value = $wrapper->$field->value();
 
-        if (is_scalar($field_value) === true) {
-            $field_value = array($field_value);
+        if (strtotime($field->value) === strtotime($value)) {
+            return;
         }
 
-        if (is_array($field_value) === false) {
-            $field_value = array();
-        }
-
-        foreach ($field_value as $v) {
-            if (is_array($v) === true) {
-                // The value may exist as either the start date ('value') or the end
-                // date ('value2').
-                if (array_key_exists('value', $v) === true) {
-                    if (strtotime($value) === strtotime($v['value'])) {
-                        return;
-                    }
-                }
-
-                if (array_key_exists('value2', $v) === true) {
-                    if (strtotime($value) === strtotime($v['value2'])) {
-                        return;
-                    }
-                }
-            }
-
-            if (strtotime($value) === $v) {
-                return;
-            }
-        }//end foreach
-
-        throw new \Exception(sprintf('Field "%s" does not contain datetime "%s" (%s)', $field, strtotime($value), $value));
+        throw new \Exception(sprintf('Field does not contain datetime "%s" (%s), contains "%s".', strtotime($value), $value, strtotime($field->value)));
 
     }//end assertEntityFieldValueDatetime()
 
@@ -560,6 +920,8 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function dumpField($field)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $wrapper     = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
         $field_value = $wrapper->$field->value();
         print_r($field_value);

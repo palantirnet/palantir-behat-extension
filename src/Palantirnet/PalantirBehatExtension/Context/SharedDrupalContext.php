@@ -14,6 +14,7 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Drupal\DrupalExtension\Context\RawDrupalContext;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context class with functionality that is shared across custom contexts.
@@ -29,25 +30,55 @@ class SharedDrupalContext extends RawDrupalContext
     /**
      * Get node object by its title.
      *
-     * @param string $contentType A Drupal content type machine name.
-     * @param string $title       The title of a Drupal node.
+     * @param string $contentType
+     *  A Drupal content type machine name.
+     * @param string $title
+     *  The title of a Drupal node.
+     * @param string $language
+     *  The language the node is in.
+     *
+     * @throws \Exception if no node with title $title was found.
+     * @throws \Exception if node is not available in that language.
+     * @throws \Exception if multiple nodes with title $title are found.
      *
      * @return stdclass
      *   The Drupal node object, if it exists.
      */
-    public function findNodeByTitle($contentType, $title)
+    public function findNodeByTitle($contentType, $title, $language = NULL)
     {
-        $query = new \EntityFieldQuery();
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('node');
 
-        $entities = $query->entityCondition('entity_type', 'node')
-            ->entityCondition('bundle', $contentType)
-            ->propertyCondition('title', $title)
+        $entities = $query
+            ->condition('type', $contentType)
+            ->condition('title', $title)
             ->execute();
 
-        if (empty($entities['node']) === false && count($entities['node']) === 1) {
-            $nid = key($entities['node']);
-            return node_load($nid);
-        } else if (empty($entities['node']) === false && count($entities['node']) > 1) {
+        if (count($entities) === 1) {
+            $node_storage = \Drupal::entityManager()->getStorage('node');
+
+            // `entityQuery` will return an array of node IDs with key and
+            // value equal to the nids.
+            // Example: `[123 => '123', 456 => '456']`. For this reason, even
+            // though there is only a single element, we cannot access the
+            // first element using `$entities[0]`.
+            $nid = array_shift($entities);
+
+            $node = $node_storage->load($nid);
+
+            if (!is_null($language)) {
+                if ($node->hasTranslation($language)) {
+                    $node = $node->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The node is not available in that language.');
+                }
+            }
+
+            return $node;
+        } else if (count($entities) > 1) {
             throw new \Exception(sprintf('Found more than one "%s" node entitled "%s"', $contentType, $title));
         } else {
             throw new \Exception(sprintf('No "%s" node entitled "%s" exists', $contentType, $title));
@@ -67,15 +98,17 @@ class SharedDrupalContext extends RawDrupalContext
      */
     protected function getNodeByTitle($contentType, $title)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         try {
             $node = $this->findNodeByTitle($contentType, $title);
         }
         catch (\Exception $e) {
             $new_node = (object) array(
-                                  'title' => $title,
-                                  'type'  => $contentType,
-                                  'body'  => $this->getRandom()->string(255),
-                                 );
+                'title' => $title,
+                'type'  => $contentType,
+                'body'  => $this->getRandom()->string(255),
+            );
 
             $node = $this->nodeCreate($new_node);
         }
@@ -96,6 +129,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function findTermByName($termName, $vocabulary)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $query = new \EntityFieldQuery();
 
         $entities = $query->entityCondition('entity_type', 'taxonomy_term')
@@ -116,25 +151,141 @@ class SharedDrupalContext extends RawDrupalContext
 
 
     /**
+     * Get block object by its description.
+     *
+     * @param string $blockType
+     *  A Drupal block type machine name.
+     * @param string $info
+     *  The info of a Drupal block.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if block is not found.
+     * @throws \Exception if multiple blocks with info $info are found.
+     *
+     * @return \Drupal\block_content\Entity\BlockContent|bool
+     *  The Drupal block object, if it exists or FALSE.
+     */
+    public function findBlockByInfo($blockType, $info, $language = NULL)
+    {
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('block_content');
+
+        $entities = $query
+            ->condition('type', $blockType)
+            ->condition('info', $info)
+            ->execute();
+
+        if (count($entities) === 1) {
+            $block_storage = \Drupal::entityTypeManager()->getStorage('block_content');
+            $id = array_shift($entities);
+
+            $block = $block_storage->load($id);
+
+            if (!is_null($language)) {
+                if ($block->hasTranslation($language)) {
+                    $block = $block->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The block is not available in that language.');
+                }
+            }
+
+            return $block;
+        } else if (count($entities) > 1) {
+            throw new \Exception(sprintf('Found more than one "%s" block with info "%s"', $blockType, $info));
+        } else {
+            throw new \Exception(sprintf('No "%s" blocks with info "%s" exists', $blockType, $info));
+        }
+
+    }//end findBlockByInfo()
+
+
+    /**
+     * Get media object by its name.
+     *
+     * @param string $mediaType
+     *  A Drupal media type machine name.
+     * @param string $name
+     *  The name of a Drupal media entity.
+     * @param string $language
+     *  Optional language code.
+     *
+     * @throws \Exception if media is not found.
+     * @throws \Exception if multiple media entities with name $name are found.
+     *
+     * @return \Drupal\media\Entity\Media|bool
+     *  The Drupal media object, if it exists or FALSE.
+     */
+    public function findMediaByName($mediaType, $name, $language = NULL)
+    {
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('media');
+
+        $entities = $query
+            ->condition('bundle', $mediaType)
+            ->condition('name', $name)
+            ->execute();
+
+        if (count($entities) === 1) {
+            $block_storage = \Drupal::entityTypeManager()->getStorage('media');
+            $id = array_shift($entities);
+
+            $media = $block_storage->load($id);
+
+            if (!is_null($language)) {
+                if ($media->hasTranslation($language)) {
+                    $media = $media->getTranslation($language);
+                }
+                else {
+                    throw new \Exception('The media entity is not available in that language.');
+                }
+            }
+
+            return $media;
+        } else if (count($entities) > 1) {
+            throw new \Exception(sprintf('Found more than one "%s" media entity with name "%s"', $mediaType, $name));
+        } else {
+            throw new \Exception(sprintf('No "%s" media entities with name "%s" exists', $mediaType, $name));
+        }
+
+    }//end findMediaByName()
+
+
+    /**
      * Get a user object by name.
      *
      * @param string $userName The name of a Drupal user.
      *
-     * @return stdclass
-     *   The Drupal user object, if it exists.
+     * @throws \Exception if user is not found.
+     * @throws \Exception if multiple user with name $userName are found.
+     *
+     * @return \Drupal\User\Entity\User|bool
+     *   A Drupal user object or FALSE if it does not exist.
      */
     public function findUserByName($userName)
     {
-        $query = new \EntityFieldQuery();
+        /**
+         * @var $query \Drupal\Core\Entity\Query\QueryInterface
+         */
+        $query = \Drupal::entityQuery('user');
 
-        $entities = $query->entityCondition('entity_type', 'user')
-            ->propertyCondition('name', $userName)
+        $entities = $query
+            ->condition('name', $userName)
             ->execute();
 
-        if (empty($entities['user']) === false && count($entities['user']) === 1) {
-            $id = key($entities['user']);
-            return user_load($id);
-        } else if (empty($entities['user']) === false && count($entities['user']) > 1) {
+        if (count($entities) === 1) {
+            $user_storage = \Drupal::entityTypeManager()->getStorage('user');
+            $uid = array_shift($entities);
+
+            $user = $user_storage->load($uid);
+
+            return $user;
+        } else if (count($entities) > 1) {
             throw new \Exception(sprintf('Found more than one user named "%s"', $userName));
         } else {
             throw new \Exception(sprintf('No user named "%s" exists', $userName));
@@ -155,6 +306,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function fileCreate($file)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         // Save the file and overwrite if it already exists.
         $dest   = file_build_uri(drupal_basename($file->uri));
         $result = file_copy($file, $dest, FILE_EXISTS_REPLACE);
@@ -183,6 +336,8 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function expandFile($file)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         if (empty($file->filename) === true) {
             throw new \Exception("Can't create file with no source filename; this should be the name of a file within the MinkExtension's files_path directory.");
         }
@@ -201,9 +356,9 @@ class SharedDrupalContext extends RawDrupalContext
 
         // Add default values.
         $defaults = array(
-                     'uid'    => 0,
-                     'status' => 1,
-                    );
+            'uid'    => 0,
+            'status' => 1,
+        );
 
         foreach ($defaults as $key => $default) {
             if (isset($file->$key) === false) {
@@ -233,9 +388,14 @@ class SharedDrupalContext extends RawDrupalContext
      */
     public function cleanFiles()
     {
-        foreach ($this->files as $file) {
-            file_delete($file, true);
-        }
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
+
+            foreach ($this->files as $file) {
+                file_delete($file, true);
+            }
+        */
 
         $this->files = array();
 

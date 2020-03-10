@@ -13,6 +13,7 @@ use Behat\Gherkin\Node\TableNode;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalExtension\Context\DrupalContext;
 use Drupal\DrupalDriverManager;
+use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
  * Behat context with steps for testing Drupal commenting functionality.
@@ -79,9 +80,14 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function checkDependencies(BeforeScenarioScope $scope)
     {
-        if (module_exists('comment') === false) {
-            throw new \Exception('The Comment module is not available.');
-        }
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
+
+            if (module_exists('comment') === false) {
+                throw new \Exception('The Comment module is not available.');
+            }
+        */
 
     }//end checkDependencies()
 
@@ -95,10 +101,15 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function cleanComments()
     {
-        // Remove any comments that were created.
-        foreach ($this->comments as $comment) {
-            comment_delete($comment->cid);
-        }
+        /*
+            @todo Update for Drupal 8
+            @see NotUpdatedException
+
+            // Remove any comments that were created.
+            foreach ($this->comments as $comment) {
+                comment_delete($comment->cid);
+            }
+        */
 
         $this->comments = array();
 
@@ -120,6 +131,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function getAccount()
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         if (empty($this->drupalContext->user) === false) {
             $account = user_load($this->drupalContext->user->uid);
         } else {
@@ -145,6 +158,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function createComment($comment)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         // Assign authorship if none exists and `author` is passed.
         if (isset($comment->uid) === false && empty($comment->author) === false) {
             $account = user_load_by_name($comment->author);
@@ -200,6 +215,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     protected function expandEntityFields($entity_type, \stdClass $entity)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $field_types = $this->getDriver()->getCore()->getEntityFieldTypes($entity_type);
 
         foreach ($field_types as $field_name => $type) {
@@ -225,6 +242,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function assertCommentsAreOpen($type, $title)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $node = $this->getNodeByTitle($type, $title);
         if ((int) $node->comment !== COMMENT_NODE_OPEN) {
             throw new \Exception(sprintf('Comments on "%s" content "%s" are not open.', $type, $title));
@@ -246,6 +265,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     function createCommentOnContent($text, $type, $title)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $this->assertCommentsAreOpen($type, $title);
 
         $node = $this->getNodeByTitle($type, $title);
@@ -281,6 +302,8 @@ class DrupalCommentContext extends SharedDrupalContext
      */
     public function createCommentsOnContent($type, $title, TableNode $commentsTable)
     {
+        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+
         $this->assertCommentsAreOpen($type, $title);
 
         $node = $this->getNodeByTitle($type, $title);
