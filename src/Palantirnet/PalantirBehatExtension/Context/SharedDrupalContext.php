@@ -136,6 +136,7 @@ class SharedDrupalContext extends RawDrupalContext
 
         $entities = $query
             ->condition('name', $termName)
+            ->condition('vid', $vocabulary)
             ->execute();
 
         if (count($entities) === 1) {
@@ -170,6 +171,7 @@ class SharedDrupalContext extends RawDrupalContext
 
         $entities = $query
             ->condition('machine_name', $machineName)
+            ->condition('vid', $vocabulary)
             ->execute();
 
         if (count($entities) === 1) {
