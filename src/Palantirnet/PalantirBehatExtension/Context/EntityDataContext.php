@@ -10,6 +10,7 @@ namespace Palantirnet\PalantirBehatExtension\Context;
 use Behat\Behat\Tester\Exception\PendingException;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalDriverManager;
+use Drupal\file\FileInterface;
 use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
@@ -767,9 +768,9 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
-     * Test a file field for a Drupal stream wrapper URI.
+     * Test a file field for a given filename.
      *
-     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field item list.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -778,25 +779,45 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueFile($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        // Initialize array to collect field referenced filename(s).
+        $filenames = [];
 
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        // Get the referenced file id(s) so we can load file(s).
+        $property = 'target_id';
+        $field_values = array_map(function ($field_value) use ($property) {
+            return $field_value[$property];
+        }, $field->getValue());
 
-        $field_value = $wrapper->$field->value();
+        if (!empty($field_values)) {
+            foreach ($field_values as $field_value) {
+                /**
+                 * @var $file \Drupal\file\FileInterface|NULL
+                 */
+                $file = file_load($field_value);
+                if ($file instanceof FileInterface) {
+                    $filename = $file->getFilename();
 
-        // Note that file field values are array('fid' => '...', ... ),
-        // which makes it somewhat hard to tell single values from multiple values.
-        if (isset($field_value['fid']) === true) {
-            $field_value = array($field_value);
-        }
+                    if (strpos($filename, $value) !== false) {
+                        return;
+                    }
 
-        foreach ($field_value as $f) {
-            if (strpos($f['uri'], $value) !== false) {
+                  $filenames[] = $filename;
+                }
+            }
+
+            // Special case for expecting nothing.
+            if ($value === 'nothing') {
+                if (!empty($field_values)) {
+                    throw new \Exception(sprintf('Field "%s" has file(s) "%s" and is not empty.', $field->getName(), json_encode($filenames)));
+                }
+
                 return;
             }
+
+            throw new \Exception(sprintf('Field "%s" does not contain file with name "%s", has "%s" instead.', $field->getName(), $value, json_encode($filenames)));
         }
 
-        throw new \Exception(sprintf('Field "%s" does not contain file with URI "%s"', $field, $value));
+        throw new \Exception('Field is empty.');
 
     }//end assertEntityFieldValueFile()
 
@@ -813,7 +834,6 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueImage($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertEntityFieldValueFile($field, $value);
 
