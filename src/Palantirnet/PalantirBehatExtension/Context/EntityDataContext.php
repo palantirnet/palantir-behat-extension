@@ -8,6 +8,8 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Behat\Behat\Tester\Exception\PendingException;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Url;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalDriverManager;
 use Drupal\file\FileInterface;
@@ -691,7 +693,11 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
-     * Test a link field for its URL value.
+     * Test a link field for its uri value.
+     *
+     * We first check for an external url test value to test against the the
+     * field value uri.  If the test value is not an external url, we assume
+     * it is the label of an entity referenced by an internal uri.
      *
      * @param \Drupal\Core\Field\FieldItemList $field
      *  A Drupal field object.
@@ -704,10 +710,61 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueLink($field, $value)
     {
-        // Check if the provided value matches any of the field values.
-        $this->assertEntityFieldHasPropertyValue($field, $value, 'uri');
+        // Special case for expecting nothing.
+        if ($value === 'nothing') {
+            if (!empty($titles_from_field_values)) {
+              throw new \Exception(sprintf('Field "%s" has value of "%s" and does not contain "%s"', $field->getName(), json_encode($field->getValue()), $value));
+            }
+
+            return;
+        }
+
+        // Determine if the value being tested is external or internal.
+        $is_value_external = UrlHelper::isExternal($value);
+
+        if ($is_value_external) {
+            // Check if the provided uri matches any of the field values.
+            $this->assertEntityFieldHasPropertyValue($field, $value, 'uri');
+        }
+        else {
+            // We assume that the value is a label from a referenced entity.
+            // Check if the provided test value matches any of the field value
+            // referenced entity labels.
+            $this->assertEntityLinkFieldInternalReferenceByTitle($field, $value);
+        }
 
     }//end assertEntityFieldValueLink()
+
+    /**
+     * Test a link field for its internal referenced entity label.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception when url was not found
+     *
+     * @return void
+     */
+    public function assertEntityLinkFieldInternalReferenceByTitle($field, $value) {
+        // Determine if we have an internal link uri present as a field value.
+        $internal_uri_field_values = array_filter($field->getValue(), function ($field_value) {
+            return !UrlHelper::isExternal($field_value['uri']);
+        });
+
+        // Get titles of the referenced entities from internal uri field values.
+        $titles_from_field_values = array_map(function ($field_value) {
+            $params = Url::fromUri($field_value['uri'])->getRouteParameters();
+            $entity_type = key($params);
+            $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($params[$entity_type]);
+            return $entity->label();
+        }, $internal_uri_field_values);
+
+        if (in_array($value, $titles_from_field_values) === false) {
+            throw new \Exception(sprintf('Field "%s" has a uri referencing entity(ies) with title(s) "%s" and does not contain "%s"', $field->getName(), json_encode($titles_from_field_values), $value));
+        }
+    } // end assertEntityLinkFieldInternalReferenceByTitle()
 
     /**
      * Test a text field for a partial string.
