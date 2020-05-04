@@ -531,6 +531,52 @@ class EntityDataContext extends SharedDrupalContext
 
     }//end assertEntityFieldPropertyValue()
 
+  /**
+   * Test a link field for a given property value.
+   *
+   * @param \Drupal\Core\Field\FieldItemList $field
+   *  A Drupal field object.
+   * @param mixed $value
+   *  The value to look for.
+   *
+   * @throws \Exception when url was not found
+   *
+   * @return void
+   */
+  public function assertEntityFieldPropertyValueLink($field, $value, $property)
+  {
+      // Check if the provided value matches any of the field values - if no
+      // property is defined, use the default `value`.
+      $field_values = array_map(function ($field_value) use ($property) {
+          return $field_value[$property];
+      }, $field->getValue());
+
+      // Special case for expecting nothing.
+      if ($value === 'nothing') {
+          if (!empty($field_values)) {
+              throw new \Exception(sprintf('Field "%s" has a "%s" of "%s" and does not contain "%s"', $field->getName(), $property, json_encode($field_values), $value));
+          }
+
+          return;
+      }
+
+      // Special case for options.
+      if ($property == 'options') {
+          // Options should be passed in as json_encoded string.
+          $options_array = json_decode($value, TRUE);
+          if (in_array($options_array, $field_values) === false) {
+              throw new \Exception(sprintf('Field "%s" has "options" of "%s" and does not contain "%s"', $field->getName(), json_encode($field_values), $value));
+          }
+
+          return;
+      }
+
+      if (in_array($value, $field_values) === false) {
+          throw new \Exception(sprintf('Field "%s" has a "%s" of "%s" and does not contain "%s"', $field->getName(), $property, json_encode($field_values), $value));
+      }
+
+  }//end assertEntityFieldPropertyValueLink()
+
     /**
      * For a given field - and optional field property - check if a value is
      * present.
