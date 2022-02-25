@@ -1,5 +1,7 @@
 # Palantir Behat Drupal Extension
 
+_This package is no longer maintained. To upgrade an existing site, you can copy the contexts you use from `src/Palantirnet/PalantirBehatExtension/Context/` into your project._
+
 The Palantir Behat Drupal Extension provides additional step definitions for testing Drupal sites using [Behat](http://behat.org),
 [Mink Extension](https://github.com/Behat/MinkExtension).
 
