@@ -8,8 +8,11 @@
 namespace Palantirnet\PalantirBehatExtension\Context;
 
 use Behat\Behat\Tester\Exception\PendingException;
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Url;
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Drupal\DrupalDriverManager;
+use Drupal\file\FileInterface;
 use Palantirnet\PalantirBehatExtension\NotUpdatedException;
 
 /**
@@ -89,16 +92,38 @@ class EntityDataContext extends SharedDrupalContext
      *
      * @When I examine the :termName term in the :vocabulary( vocabulary)
      *
-     * @param string $termName   A Drupal taxonomy term name.
+     * @param string $termName A Drupal taxonomy term name.
      * @param string $vocabulary The machine name of a Drupal taxonomy vocabulary.
+     *
+     * @throws \Exception
      *
      * @return void
      */
     public function assertTermByName($termName, $vocabulary)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
-
         $term = $this->findTermByName($termName, $vocabulary);
+
+        $this->currentEntity     = $term;
+        $this->currentEntityType = 'taxonomy_term';
+
+    }//end assertTermByName()
+
+
+    /**
+     * Verify field and property values of a taxonomy term entity.
+     *
+     * @When I examine the term with machine name :machineName in the :vocabulary( vocabulary)
+     *
+     * @param string $machineName A Drupal taxonomy term machine name.
+     * @param string $vocabulary The machine name of a Drupal taxonomy vocabulary.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    public function assertTermByMachineName($machineName, $vocabulary)
+    {
+        $term = $this->findTermByMachineName($machineName, $vocabulary);
 
         $this->currentEntity     = $term;
         $this->currentEntityType = 'taxonomy_term';
@@ -506,6 +531,52 @@ class EntityDataContext extends SharedDrupalContext
 
     }//end assertEntityFieldPropertyValue()
 
+  /**
+   * Test a link field for a given property value.
+   *
+   * @param \Drupal\Core\Field\FieldItemList $field
+   *  A Drupal field object.
+   * @param mixed $value
+   *  The value to look for.
+   *
+   * @throws \Exception when url was not found
+   *
+   * @return void
+   */
+  public function assertEntityFieldPropertyValueLink($field, $value, $property)
+  {
+      // Check if the provided value matches any of the field values - if no
+      // property is defined, use the default `value`.
+      $field_values = array_map(function ($field_value) use ($property) {
+          return $field_value[$property];
+      }, $field->getValue());
+
+      // Special case for expecting nothing.
+      if ($value === 'nothing') {
+          if (!empty($field_values)) {
+              throw new \Exception(sprintf('Field "%s" has a "%s" of "%s" and does not contain "%s"', $field->getName(), $property, json_encode($field_values), $value));
+          }
+
+          return;
+      }
+
+      // Special case for options.
+      if ($property == 'options') {
+          // Options should be passed in as json_encoded string.
+          $options_array = json_decode($value, TRUE);
+          if (in_array($options_array, $field_values) === false) {
+              throw new \Exception(sprintf('Field "%s" has "options" of "%s" and does not contain "%s"', $field->getName(), json_encode($field_values), $value));
+          }
+
+          return;
+      }
+
+      if (in_array($value, $field_values) === false) {
+          throw new \Exception(sprintf('Field "%s" has a "%s" of "%s" and does not contain "%s"', $field->getName(), $property, json_encode($field_values), $value));
+      }
+
+  }//end assertEntityFieldPropertyValueLink()
+
     /**
      * For a given field - and optional field property - check if a value is
      * present.
@@ -668,7 +739,11 @@ class EntityDataContext extends SharedDrupalContext
 
 
     /**
-     * Test a link field for its URL value.
+     * Test a link field for its uri value.
+     *
+     * We first check for an external url test value to test against the the
+     * field value uri.  If the test value is not an external url, we assume
+     * it is the label of an entity referenced by an internal uri.
      *
      * @param \Drupal\Core\Field\FieldItemList $field
      *  A Drupal field object.
@@ -681,11 +756,79 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueLink($field, $value)
     {
-        // Check if the provided value matches any of the field values.
-        $this->assertEntityFieldHasPropertyValue($field, $value, 'uri');
+        // Special case for expecting nothing.
+        if ($value === 'nothing') {
+            if (!empty($titles_from_field_values)) {
+              throw new \Exception(sprintf('Field "%s" has value of "%s" and does not contain "%s"', $field->getName(), json_encode($field->getValue()), $value));
+            }
+
+            return;
+        }
+
+        // Determine if the value being tested is external or internal.
+        $is_value_external = UrlHelper::isExternal($value);
+
+        if ($is_value_external) {
+            // Check if the provided uri matches any of the field values.
+            $this->assertEntityFieldHasPropertyValue($field, $value, 'uri');
+        }
+        else {
+            // We assume that the value is a label from a referenced entity.
+            // Check if the provided test value matches any of the field value
+            // referenced entity labels.
+            $this->assertEntityLinkFieldInternalReferenceByTitle($field, $value);
+        }
 
     }//end assertEntityFieldValueLink()
 
+    /**
+     * Test a link field for its internal referenced entity label.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception when url was not found
+     *
+     * @return void
+     */
+    public function assertEntityLinkFieldInternalReferenceByTitle($field, $value) {
+        // Determine if we have an internal link uri present as a field value.
+        $internal_uri_field_values = array_filter($field->getValue(), function ($field_value) {
+            return !UrlHelper::isExternal($field_value['uri']);
+        });
+
+        // Get titles of the referenced entities from internal uri field values.
+        $titles_from_field_values = array_map(function ($field_value) {
+            $params = Url::fromUri($field_value['uri'])->getRouteParameters();
+            $entity_type = key($params);
+            $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($params[$entity_type]);
+            return $entity->label();
+        }, $internal_uri_field_values);
+
+        if (in_array($value, $titles_from_field_values) === false) {
+            throw new \Exception(sprintf('Field "%s" has a uri referencing entity(ies) with title(s) "%s" and does not contain "%s"', $field->getName(), json_encode($titles_from_field_values), $value));
+        }
+    } // end assertEntityLinkFieldInternalReferenceByTitle()
+
+    /**
+     * Test a text field for a partial string.
+     *
+     * @param \Drupal\Core\Field\FieldItemList $field
+     *  A Drupal field object.
+     * @param mixed $value
+     *  The value to look for.
+     *
+     * @throws \Exception when value was not found.
+     *
+     * @return void
+     */
+    public function assertEntityFieldValueTextWithSummary($field, $value)
+    {
+        // Re-use the assertEntityFieldVallueTextLong for now.
+        return $this->assertEntityFieldValueTextLong($field, $value);
+    }
 
     /**
      * Test a text field for a partial string.
@@ -722,13 +865,15 @@ class EntityDataContext extends SharedDrupalContext
                 return;
             }
         }
+
+        throw new \Exception(sprintf('Field value of "%s" does not contain expected value "%s"', $field_value, $value));
     }//end assertEntityFieldValueTextLong()
 
 
     /**
-     * Test a file field for a Drupal stream wrapper URI.
+     * Test a file field for a given filename.
      *
-     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field name.
+     * @param \Drupal\Core\Field\FieldItemList $field A Drupal field item list.
      * @param mixed  $value The value to look for.
      *
      * @throws \Exception
@@ -737,25 +882,45 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueFile($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
+        // Initialize array to collect field referenced filename(s).
+        $filenames = [];
 
-        $wrapper = entity_metadata_wrapper($this->currentEntityType, $this->currentEntity);
+        // Get the referenced file id(s) so we can load file(s).
+        $property = 'target_id';
+        $field_values = array_map(function ($field_value) use ($property) {
+            return $field_value[$property];
+        }, $field->getValue());
 
-        $field_value = $wrapper->$field->value();
+        if (!empty($field_values)) {
+            foreach ($field_values as $field_value) {
+                /**
+                 * @var $file \Drupal\file\FileInterface|NULL
+                 */
+                $file = file_load($field_value);
+                if ($file instanceof FileInterface) {
+                    $filename = $file->getFilename();
 
-        // Note that file field values are array('fid' => '...', ... ),
-        // which makes it somewhat hard to tell single values from multiple values.
-        if (isset($field_value['fid']) === true) {
-            $field_value = array($field_value);
-        }
+                    if (strpos($filename, $value) !== false) {
+                        return;
+                    }
 
-        foreach ($field_value as $f) {
-            if (strpos($f['uri'], $value) !== false) {
+                  $filenames[] = $filename;
+                }
+            }
+
+            // Special case for expecting nothing.
+            if ($value === 'nothing') {
+                if (!empty($field_values)) {
+                    throw new \Exception(sprintf('Field "%s" has file(s) "%s" and is not empty.', $field->getName(), json_encode($filenames)));
+                }
+
                 return;
             }
+
+            throw new \Exception(sprintf('Field "%s" does not contain file with name "%s", has "%s" instead.', $field->getName(), $value, json_encode($filenames)));
         }
 
-        throw new \Exception(sprintf('Field "%s" does not contain file with URI "%s"', $field, $value));
+        throw new \Exception('Field is empty.');
 
     }//end assertEntityFieldValueFile()
 
@@ -772,7 +937,6 @@ class EntityDataContext extends SharedDrupalContext
      */
     public function assertEntityFieldValueImage($field, $value)
     {
-        throw new NotUpdatedException('Method not yet updated for Drupal 8.');
 
         $this->assertEntityFieldValueFile($field, $value);
 
