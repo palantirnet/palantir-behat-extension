@@ -32,7 +32,7 @@
         }
     },
     "require": {
-        "drupal/drupal-extension": "4.*"
+        "drupal/drupal-extension": "5.*"
     },
     "repositories": [
         {
