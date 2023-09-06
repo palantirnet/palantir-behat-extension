@@ -52,6 +52,7 @@ class SharedDrupalContext extends RawDrupalContext
         $query = \Drupal::entityQuery('node');
 
         $entities = $query
+            ->accessCheck(FALSE)
             ->condition('type', $contentType)
             ->condition('title', $title)
             ->execute();
@@ -174,6 +175,7 @@ class SharedDrupalContext extends RawDrupalContext
         $query = \Drupal::entityQuery('block_content');
 
         $entities = $query
+            ->accessCheck(FALSE)
             ->condition('type', $blockType)
             ->condition('info', $info)
             ->execute();
@@ -227,6 +229,7 @@ class SharedDrupalContext extends RawDrupalContext
         $query = \Drupal::entityQuery('media');
 
         $entities = $query
+            ->accessCheck(FALSE)
             ->condition('bundle', $mediaType)
             ->condition('name', $name)
             ->execute();
@@ -275,6 +278,7 @@ class SharedDrupalContext extends RawDrupalContext
         $query = \Drupal::entityQuery('user');
 
         $entities = $query
+            ->accessCheck(FALSE)
             ->condition('name', $userName)
             ->execute();
 
