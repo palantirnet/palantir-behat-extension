@@ -58,7 +58,7 @@ class SharedDrupalContext extends RawDrupalContext
             ->execute();
 
         if (count($entities) === 1) {
-            $node_storage = \Drupal::entityManager()->getStorage('node');
+            $node_storage = \Drupal::entityTypeManager()->getStorage('node');
 
             // `entityQuery` will return an array of node IDs with key and
             // value equal to the nids.
